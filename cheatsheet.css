@@ -1,0 +1,320 @@
+/* ============================================================
+   cheatsheet.css — A4 landscape 4-column high-density print style
+   Usage: pandoc note.md --standalone --embed-resources --css cheatsheet.css -o note.html
+   Print: Browser Ctrl+P → Landscape → Margins: Minimum → Save as PDF
+   ============================================================ */
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* Force browsers to print background colors and images */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── Page setup ── */
+@page {
+  size: A4 landscape;
+  margin: 5mm;
+}
+
+html {
+  font-size: 6.5pt;           /* Global base font size — adjust 5.5–8pt to taste */
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  color: #111;
+  background: #fff;
+  width: 287mm;               /* A4 landscape 297mm minus 10mm margins */
+  margin: 0 auto;
+}
+
+/* ── Multi-column layout ── */
+/* column-fill: balance — distributes content evenly for on-screen preview  */
+/* column-fill: auto   — fills columns top-to-bottom when printing (page height is the constraint) */
+.content-wrapper {
+  column-count: 4;            /* Number of columns — change to 2 or 3 as needed */
+  column-gap: 2.5mm;
+  column-rule: 0.3pt solid #ccc;
+  column-fill: balance;
+  orphans: 2;
+  widows: 2;
+}
+
+@media print {
+  body {
+    width: 100%;
+  }
+  .content-wrapper {
+    column-count: 4;
+    column-gap: 2.5mm;
+    column-fill: auto;
+  }
+}
+
+/* ── Headings ── */
+h1 {
+  font-size: 7.5pt;
+  font-weight: 700;
+  color: #111;
+  background: none;
+  padding: 0;
+  margin: 1pt 0 0.5pt 0;
+  break-after: avoid;
+  letter-spacing: 0.02em;
+}
+
+h2 {
+  font-size: 7pt;
+  font-weight: 700;
+  color: #0d2d6e;
+  background: #e8eef8;
+  padding: 1pt 3pt;
+  margin: 1.5pt 0 0.5pt 0;
+  border-left: 2pt solid #0d2d6e;
+  break-after: avoid;
+  break-before: avoid;
+}
+
+h3 {
+  font-size: 6.5pt;
+  font-weight: 700;
+  color: #1a6bc4;
+  margin: 1.5pt 0 0.5pt 0;
+  break-after: avoid;
+}
+
+h4 {
+  font-size: 6pt;
+  font-weight: 700;
+  color: #333;
+  margin: 1pt 0 0.5pt 0;
+  break-after: avoid;
+}
+
+h5, h6 {
+  font-size: 6pt;
+  font-weight: 700;
+  color: #555;
+  margin: 1pt 0 0.5pt 0;
+}
+
+/* ── Paragraphs ── */
+p {
+  margin: 0 0 1pt 0;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* ── Lists ── */
+/* Custom bullet via ::before for tight bullet-text spacing (no tab-like gap) */
+ul {
+  list-style: none;
+  margin: 0 0 1pt 0;
+  padding-left: 5pt;
+}
+
+ol {
+  margin: 0 0 1pt 0;
+  padding-left: 7pt;
+}
+
+li {
+  margin: 0;
+  line-height: 1.1;
+}
+
+ul > li {
+  /* Negative first-line indent: bullet sits at column edge, text wraps at 5pt */
+  text-indent: -5pt;
+}
+
+ul > li::before {
+  content: "\2022\00a0"; /* bullet • followed by non-breaking space */
+  color: #666;
+}
+
+li > p {
+  margin: 0;
+}
+
+li ul {
+  margin: 0;
+  padding-left: 5pt;
+}
+
+li ol {
+  margin: 0;
+  padding-left: 7pt;
+}
+
+/* ── Inline semantics ── */
+strong {
+  color: #111;
+  font-weight: 700;
+}
+
+em {
+  color: #111;
+  font-style: italic;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+}
+
+mark {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0 1pt;
+  border-radius: 1pt;
+}
+
+/* ── Inline code ── */
+code {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', 'Courier New', monospace;
+  font-size: 5.5pt;
+  background: #f0f0f0;
+  padding: 0 1pt;
+  color: #222;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* ── Code blocks ── */
+pre {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', 'Courier New', monospace;
+  font-size: 5.3pt;
+  line-height: 1.05;
+  background: #f6f8fa;
+  border: 0.3pt solid #ddd;
+  border-left: 0.5pt solid #ccc;
+  border-radius: 2pt;
+  padding: 1.5pt 3pt;
+  margin: 0 0 1pt 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  overflow: hidden;
+  max-width: 100%;
+  break-inside: auto;     /* Allow code blocks to break across columns to save space */
+  -moz-tab-size: 2;
+  tab-size: 2;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  word-break: break-all;
+}
+
+/* Syntax highlight colors (Pygments-compatible) */
+pre .kw { color: #0000ff; font-weight: bold; }
+pre .dt { color: #008000; }
+pre .st { color: #a31515; }
+pre .co { color: #008000; font-style: italic; }
+pre .op { color: #555; }
+
+/* ── Tables ── */
+table {
+  border-collapse: collapse;
+  width: auto;
+  max-width: 100%;
+  font-size: 5.8pt;
+  margin: 0 0 1pt 0;
+  break-inside: avoid;
+  table-layout: auto;     /* Column widths determined by content, not fixed equal split */
+  word-break: break-word;
+}
+
+th {
+  background: #f0f0f0;
+  color: #111;
+  font-weight: 700;
+  padding: 1pt 2pt;
+  text-align: left;
+  border: 0.3pt solid #ccc;
+  font-size: 5.8pt;
+  word-break: break-word;
+}
+
+td {
+  padding: 1pt 2pt;
+  border: 0.3pt solid #ccc;
+  vertical-align: top;
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+tr:nth-child(even) td {
+  background: #f7f9fc;
+}
+
+/* ── Blockquotes ── */
+blockquote {
+  margin: 0 0 1pt 0;
+  padding: 1pt 4pt;
+  border-left: 2pt solid #1a6bc4;
+  background: #f0f4ff;
+  color: #333;
+  break-inside: avoid;
+}
+
+blockquote p {
+  margin: 0;
+}
+
+/* ── Horizontal rule ── */
+hr {
+  border: none;
+  border-top: 0.5pt solid #ccc;
+  margin: 1pt 0;
+}
+
+/* ── Prevent orphaned headings and torn page breaks ── */
+h1, h2, h3, h4, h5, h6 {
+  break-inside: avoid;
+  break-after: avoid;
+}
+
+table, blockquote {
+  break-inside: avoid;
+}
+
+/* Keep first content element after a heading in the same column */
+h2 + p, h2 + ul, h2 + ol, h2 + pre,
+h3 + p, h3 + ul, h3 + ol, h3 + pre {
+  break-before: avoid;
+}
+
+/* ── pandoc sourceCode overrides ── */
+/* Do NOT set overflow on div.sourceCode — it creates a BFC that breaks multi-column flow */
+div.sourceCode {
+  max-width: 100%;
+  margin: 0 0 1pt 0;
+}
+
+/* Override pandoc's default white-space:pre so long lines wrap within columns */
+pre > code.sourceCode {
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+}
+
+pre > code.sourceCode > span {
+  white-space: pre-wrap !important;
+  line-height: 1.05 !important;
+}
+
+/* Fix pandoc's @media print hanging-indent that adds large left padding to every code line */
+@media print {
+  pre > code.sourceCode > span {
+    text-indent: 0 !important;
+    padding-left: 0 !important;
+  }
+}

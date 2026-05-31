@@ -1,0 +1,20 @@
+# Generated scratch files
+tmp_raw.html
+*_raw.html
+
+# Local conversion outputs
+*_cheatsheet.html
+*_cheatsheet.pdf
+
+# System/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+.agents/
+.codex/
+
+# Python cache
+__pycache__/
+*.py[cod]
