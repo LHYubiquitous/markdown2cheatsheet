@@ -13,10 +13,31 @@ Transformations applied:
        (CSS tab-size has no effect on space characters.)
     4. Wrap <body> content in <div class="content-wrapper"> required for
        the multi-column CSS layout.
+    5. Inject KaTeX CDN for LaTeX math rendering ($...$ and $$...$$).
 """
 
 import re
 import sys
+
+# KaTeX CDN snippet injected into <head> for LaTeX math rendering.
+# Pandoc outputs inline math as \(...\) and display math as \[...\] spans;
+# KaTeX auto-render picks those up and renders them in the browser.
+_KATEX = (
+    '<link rel="stylesheet"'
+    ' href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"'
+    ' crossorigin="anonymous">\n'
+    '<script defer'
+    ' src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"'
+    ' crossorigin="anonymous"></script>\n'
+    '<script defer'
+    ' src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"'
+    ' crossorigin="anonymous"'
+    ' onload="renderMathInElement(document.body,{delimiters:['
+    "{left:'$$',right:'$$',display:true},"
+    "{left:'\\\\(',right:'\\\\)',display:false},"
+    "{left:'\\\\[',right:'\\\\]',display:true}"
+    '],throwOnError:false})"></script>'
+)
 
 
 def compress_indent(m: re.Match) -> str:
@@ -27,6 +48,12 @@ def compress_indent(m: re.Match) -> str:
 
 
 def process(html: str) -> str:
+    # Inject KaTeX before </head> for math rendering
+    html = html.replace('</head>', _KATEX + '\n</head>', 1)
+
+    # Remove pandoc-generated title block (filename shown as first h1)
+    html = re.sub(r'<header[^>]*id="title-block-header"[^>]*>.*?</header>\s*', '', html, flags=re.DOTALL)
+
     # Remove frontmatter residue
     html = re.sub(r'<p>created:.*?</p>\s*', '', html, flags=re.DOTALL)
     html = re.sub(r'<p>updated:.*?</p>\s*', '', html, flags=re.DOTALL)

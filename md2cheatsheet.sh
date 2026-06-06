@@ -62,6 +62,7 @@ pandoc "$INPUT" \
   --to html5 \
   --standalone \
   --embed-resources \
+  --mathjax \
   --css "$CSS_FILE" \
   --metadata title="$TITLE" \
   --highlight-style pygments \
