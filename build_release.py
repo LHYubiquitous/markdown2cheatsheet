@@ -186,30 +186,47 @@ cd "$APP_DIR" || exit 1
 
 def windows_start_script() -> str:
     return """@echo off
+setlocal
 cd /d "%~dp0"
 
+call :ensure_pandoc || goto :fail
+start "" "%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe"
+exit /b 0
+
+:ensure_pandoc
 where pandoc >nul 2>nul
+if not errorlevel 1 exit /b 0
+
+echo Pandoc is not installed.
+where winget >nul 2>nul
 if errorlevel 1 (
-  echo Pandoc is not installed.
-  where winget >nul 2>nul
-  if errorlevel 1 (
-    echo Please install Pandoc and run start.bat again.
-    pause
-    exit /b 1
-  )
-  set /p INSTALL_PANDOC=Install Pandoc with winget now? [y/N] 
-  if /i "%INSTALL_PANDOC%"=="y" (
-    winget install -e --id JohnMacFarlane.Pandoc
-  ) else if /i "%INSTALL_PANDOC%"=="yes" (
-    winget install -e --id JohnMacFarlane.Pandoc
-  ) else (
-    echo Pandoc is required.
-    pause
-    exit /b 1
-  )
+  echo Please install Pandoc and run start.bat again.
+  exit /b 1
 )
 
-start "" "%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe"
+set /p INSTALL_PANDOC=Install Pandoc with winget now? [y/N] 
+if /i "%INSTALL_PANDOC%"=="y" goto :install_pandoc
+if /i "%INSTALL_PANDOC%"=="yes" goto :install_pandoc
+echo Pandoc is required.
+exit /b 1
+
+:install_pandoc
+winget install -e --id JohnMacFarlane.Pandoc
+if errorlevel 1 (
+  echo Pandoc installation failed.
+  exit /b 1
+)
+
+where pandoc >nul 2>nul
+if not errorlevel 1 exit /b 0
+
+echo Pandoc was installed, but the current terminal cannot find it yet.
+echo Please close this window and run start.bat again.
+exit /b 1
+
+:fail
+pause
+exit /b 1
 """
 
 
