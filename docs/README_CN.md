@@ -24,6 +24,37 @@
 | [Pandoc](https://pandoc.org) | Markdown 转独立 HTML | macOS: `brew install pandoc` · Ubuntu: `sudo apt install pandoc` · Windows: `winget install JohnMacFarlane.Pandoc` |
 | Python 3 | 运行转换器和本地图形界面 | macOS/Linux 通常自带；Windows 可从 [python.org](https://python.org) 安装 |
 
+## 环境配置
+
+先检查 Pandoc 是否可用：
+
+```bash
+pandoc --version
+```
+
+如果这条命令能正常输出版本号，就说明项目可以直接调用 Pandoc。
+
+如果 Pandoc 已安装，但命令找不到：
+
+- macOS/Linux：确认 Pandoc 已加入 `PATH`
+- Windows：先关闭并重新打开终端
+- Windows：如果还不行，可手动把 Pandoc 目录加入 `PATH`，常见路径是 `C:\Users\<你的用户名>\AppData\Local\Pandoc`
+
+这个项目查找 Pandoc 的方式是：
+
+- 先直接尝试系统里的 `pandoc`
+- 在 Windows 上还会额外检查几个常见安装目录
+
+## 项目如何工作
+
+转换流程如下：
+
+1. 从 GUI 或命令行读取 Markdown。
+2. 用 Pandoc 转成独立 HTML。
+3. 注入基础样式和你选择的模板覆盖样式。
+4. 再做一次后处理，调整多栏布局、表格表现和代码格式。
+5. 最终得到一个自包含的 `.html` cheatsheet，可直接浏览或导出 PDF。
+
 ## 快速开始
 
 仓库中已附带可双击启动文件：

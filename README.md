@@ -24,6 +24,37 @@ Convert Markdown notes into compact, print-ready cheatsheets with selectable lay
 | [Pandoc](https://pandoc.org) | Converts Markdown to standalone HTML | macOS: `brew install pandoc` · Ubuntu: `sudo apt install pandoc` · Windows: `winget install JohnMacFarlane.Pandoc` |
 | Python 3 | Runs the converter and local GUI | macOS/Linux: usually pre-installed · Windows: [python.org](https://python.org) |
 
+## Environment Setup
+
+Check whether Pandoc is available:
+
+```bash
+pandoc --version
+```
+
+If the command works, the project can use Pandoc directly.
+
+If Pandoc is installed but the command is not found:
+
+- macOS/Linux: make sure Pandoc is in your `PATH`
+- Windows: reopen the terminal after installation first
+- Windows: if needed, add Pandoc to `PATH`, commonly `C:\Users\<YourName>\AppData\Local\Pandoc`
+
+This project looks for Pandoc in these ways:
+
+- first, it tries `pandoc` from your system `PATH`
+- on Windows, it also checks common install locations automatically
+
+## How It Works
+
+The conversion flow is:
+
+1. Markdown is read from the GUI or CLI.
+2. Pandoc converts it into standalone HTML.
+3. The base stylesheet and selected template overrides are injected.
+4. A post-processing step adjusts layout details such as multi-column wrapping, table behavior, and code formatting.
+5. The final result is a self-contained `.html` cheatsheet that can be opened in a browser or exported to PDF.
+
 ## Quick Start
 
 Double-click launchers included in the repository:
