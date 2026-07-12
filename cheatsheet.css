@@ -20,17 +20,64 @@
   margin: 5mm;
 }
 
+:root {
+  --columns: 4;
+  --column-gap: 2.5mm;
+  --column-rule-color: #ccc;
+  --base-font-size: 6pt;
+  --body-line-height: 1.0;
+  --code-line-height: 0.9;
+  --text-color: #111;
+  --body-bg: #fff;
+  --body-font: 'Arial', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --em-font: 'Arial', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --code-font: Consolas, Menlo, Monaco, 'Courier New', monospace;
+  --h1-font-size: 6.5pt;
+  --h2-font-size: 6pt;
+  --h3-font-size: 5.5pt;
+  --h4-font-size: 5pt;
+  --h5-font-size: 5pt;
+  --inline-code-font-size: 4pt;
+  --pre-font-size: 3.8pt;
+  --table-font-size: 4.8pt;
+  --figcaption-font-size: 4pt;
+  --h1-color: #000;
+  --h2-color: #09305a;
+  --h2-bg: #cfe0f5;
+  --h2-border: #072050;
+  --h3-color: #1250a0;
+  --h4-color: #1a6bbf;
+  --h5-color: #2077cc;
+  --mark-bg: #fffa698d;
+  --mark-color: #8b0000;
+  --inline-code-bg: #f0f0f0;
+  --inline-code-color: #222;
+  --pre-bg: #f6f8fa;
+  --pre-border: #ddd;
+  --pre-border-left: #ccc;
+  --table-head-bg: #e8e8e8;
+  --table-head-color: #111;
+  --table-border: #ccc;
+  --table-stripe-bg: #f7f9fc;
+  --blockquote-border: #6d6d6d;
+  --blockquote-bg: #f0f4ff;
+  --blockquote-color: #333;
+  --hr-color: #ccc;
+  --bullet-color: #666;
+  --figcaption-color: #666;
+}
+
 html {
-  font-size: 6pt;             /* Global base font size — adjust 5.5–8pt to taste */
+  font-size: var(--base-font-size);
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', 'LXGW WenKai', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+  font-family: var(--body-font);
   font-size: 1rem;
-  line-height: 1.0;
+  line-height: var(--body-line-height);
   letter-spacing: 0.005em;
-  color: #111;
-  background: #fff;
+  color: var(--text-color);
+  background: var(--body-bg);
   width: 287mm;               /* A4 landscape 297mm minus 10mm margins */
   margin: 0 auto;
 }
@@ -39,9 +86,9 @@ body {
 /* column-fill: balance — distributes content evenly for on-screen preview  */
 /* column-fill: auto   — fills columns top-to-bottom when printing (page height is the constraint) */
 .content-wrapper {
-  column-count: 4;            /* Number of columns — change to 2 or 3 as needed */
-  column-gap: 2.5mm;
-  column-rule: 0.3pt solid #ccc;
+  column-count: var(--columns);
+  column-gap: var(--column-gap);
+  column-rule: 0.3pt solid var(--column-rule-color);
   column-fill: balance;
   orphans: 2;
   widows: 2;
@@ -52,17 +99,17 @@ body {
     width: 100%;
   }
   .content-wrapper {
-    column-count: 4;
-    column-gap: 2.5mm;
+    column-count: var(--columns);
+    column-gap: var(--column-gap);
     column-fill: auto;
   }
 }
 
 /* ── Headings ── */
 h1 {
-  font-size: 6.5pt;
+  font-size: var(--h1-font-size);
   font-weight: 700;
-  color: #000;
+  color: var(--h1-color);
   background: none;
   padding: 0;
   margin: 1pt 0 0.5pt 0;
@@ -72,38 +119,38 @@ h1 {
 }
 
 h2 {
-  font-size: 6pt;
+  font-size: var(--h2-font-size);
   font-weight: 700;
-  color: #09305a;
-  background: #cfe0f5;
+  color: var(--h2-color);
+  background: var(--h2-bg);
   padding: 1pt 3pt;
   margin: 1.5pt 0 0.5pt 0;
-  border-left: 2pt solid #072050;
+  border-left: 2pt solid var(--h2-border);
   break-after: avoid;
   break-before: avoid;
 }
 
 h3 {
-  font-size: 5.5pt;
+  font-size: var(--h3-font-size);
   font-weight: 700;
-  color: #1250a0;
+  color: var(--h3-color);
   font-style: italic;
   margin: 1.5pt 0 0.5pt 0;
   break-after: avoid;
 }
 
 h4 {
-  font-size: 5pt;
+  font-size: var(--h4-font-size);
   font-weight: 700;
-  color: #1a6bbf;
+  color: var(--h4-color);
   margin: 1pt 0 0.5pt 0;
   break-after: avoid;
 }
 
 h5, h6 {
-  font-size: 5pt;
+  font-size: var(--h5-font-size);
   font-weight: 700;
-  color: #2077cc;
+  color: var(--h5-color);
   margin: 1pt 0 0.5pt 0;
 }
 
@@ -129,7 +176,7 @@ ol {
 
 li {
   margin: 0;
-  line-height: 1.0;
+  line-height: var(--body-line-height);
 }
 
 ul > li {
@@ -139,7 +186,7 @@ ul > li {
 
 ul > li::before {
   content: "\2022\00a0"; /* bullet • followed by non-breaking space */
-  color: #666;
+  color: var(--bullet-color);
 }
 
 li > p {
@@ -158,19 +205,19 @@ li ol {
 
 /* ── Inline semantics ── */
 strong {
-  color: #111;
+  color: var(--text-color);
   font-weight: 700;
 }
 
 em {
-  color: #111;
+  color: var(--text-color);
   font-style: italic;
-  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-family: var(--em-font);
 }
 
 mark {
-  background: #fffa698d;
-  color: #8b0000;
+  background: var(--mark-bg);
+  color: var(--mark-color);
   font-weight: 700;
   padding: 0 1pt;
   border-radius: 1pt;
@@ -178,23 +225,23 @@ mark {
 
 /* ── Inline code ── */
 code {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', 'Courier New', monospace;
-  font-size: 4pt;
-  background: #f0f0f0;
+  font-family: var(--code-font);
+  font-size: var(--inline-code-font-size);
+  background: var(--inline-code-bg);
   padding: 0 1pt;
-  color: #222;
+  color: var(--inline-code-color);
   word-break: break-all;
   overflow-wrap: break-word;
 }
 
 /* ── Code blocks ── */
 pre {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', 'Courier New', monospace;
-  font-size: 3.8pt;
-  line-height: 0.9;
-  background: #f6f8fa;
-  border: 0.3pt solid #ddd;
-  border-left: 0.5pt solid #ccc;
+  font-family: var(--code-font);
+  font-size: var(--pre-font-size);
+  line-height: var(--code-line-height);
+  background: var(--pre-bg);
+  border: 0.3pt solid var(--pre-border);
+  border-left: 0.5pt solid var(--pre-border-left);
   border-radius: 2pt;
   padding: 1.5pt 3pt;
   margin: 0 0 1pt 0;
@@ -228,7 +275,7 @@ table {
   border-collapse: collapse;
   width: auto;
   max-width: 100%;
-  font-size: 4.8pt;
+  font-size: var(--table-font-size);
   margin: 0 0 1pt 0;
   break-inside: auto;     /* Allow table to break across columns; rows are kept intact below */
   table-layout: auto;     /* Column widths determined by content, not fixed equal split */
@@ -244,35 +291,35 @@ tr {
 }
 
 th {
-  background: #e8e8e8;
-  color: #111;
+  background: var(--table-head-bg);
+  color: var(--table-head-color);
   font-weight: 700;
   padding: 0.5pt 2pt;
   text-align: left;
-  border: 0.3pt solid #ccc;
-  font-size: 4.8pt;
+  border: 0.3pt solid var(--table-border);
+  font-size: var(--table-font-size);
   word-break: break-word;
 }
 
 td {
   padding: 0.3pt 2pt;
-  border: 0.3pt solid #ccc;
+  border: 0.3pt solid var(--table-border);
   vertical-align: top;
-  line-height: 1.0;
+  line-height: var(--body-line-height);
   word-break: break-word;
 }
 
 tr:nth-child(even) td {
-  background: #f7f9fc;
+  background: var(--table-stripe-bg);
 }
 
 /* ── Blockquotes ── */
 blockquote {
   margin: 0 0 1pt 0;
   padding: 1pt 4pt;
-  border-left: 2pt solid #6d6d6d;
-  background: #f0f4ff;
-  color: #333;
+  border-left: 2pt solid var(--blockquote-border);
+  background: var(--blockquote-bg);
+  color: var(--blockquote-color);
   break-inside: auto;
 }
 
@@ -303,8 +350,8 @@ figure img {
 }
 
 figcaption {
-  font-size: 4pt;
-  color: #666;
+  font-size: var(--figcaption-font-size);
+  color: var(--figcaption-color);
   font-style: italic;
   text-align: center;
   margin-top: 0.5pt;
@@ -318,7 +365,7 @@ p > img:only-child {
 /* ── Horizontal rule ── */
 hr {
   border: none;
-  border-top: 0.5pt solid #ccc;
+  border-top: 0.5pt solid var(--hr-color);
   margin: 1pt 0;
 }
 

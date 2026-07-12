@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>markdown2cheatsheet</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="sidebar">
+        <div class="header">
+          <h1>markdown2cheatsheet</h1>
+          <a
+            class="repo-link"
+            href="https://github.com/LHYubiquitous/markdown2cheatsheet.git"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub Repo
+          </a>
+        </div>
+
+        <label class="field import-field">
+          <span>Import Markdown</span>
+          <div class="file-picker">
+            <button id="filePickerButton" type="button">Choose File</button>
+            <span id="filePickerLabel">No file chosen</span>
+            <input id="fileInput" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" />
+          </div>
+        </label>
+
+        <label class="field">
+          <span>Output Filename (.html)</span>
+          <input id="filename" type="text" value="cheatsheet" />
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Columns</span>
+            <select id="columns"></select>
+          </label>
+          <label class="field">
+            <span>Color</span>
+            <select id="colorTemplate"></select>
+          </label>
+        </div>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Latin Font</span>
+            <select id="latinFont"></select>
+          </label>
+          <label class="field">
+            <span>中文字体</span>
+            <select id="cjkFont"></select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Code Font</span>
+          <select id="codeFont"></select>
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Font Size</span>
+            <select id="fontSize"></select>
+          </label>
+          <label class="field">
+            <span>Line Height</span>
+            <select id="lineHeight"></select>
+          </label>
+        </div>
+
+        <div class="field summary" id="templateSummary"></div>
+
+        <label class="field editor">
+          <span>Markdown Content</span>
+          <textarea id="markdownInput"></textarea>
+        </label>
+
+        <div class="actions">
+          <button id="generateBtn" type="button">Generate</button>
+          <button id="downloadBtn" type="button" disabled>Download HTML</button>
+        </div>
+
+        <p class="status" id="statusText">Ready.</p>
+      </section>
+
+      <section class="preview">
+        <iframe id="previewFrame" title="Cheatsheet preview"></iframe>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

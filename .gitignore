@@ -18,3 +18,10 @@ Thumbs.db
 # Python cache
 __pycache__/
 *.py[cod]
+
+# Build artifacts
+build/
+dist/
+release/
+.pyinstaller/
+*.spec
