@@ -96,6 +96,32 @@ def macos_start_script() -> str:
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$SCRIPT_DIR/Markdown2CheatsheetGUI"
 
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+confirm_install() {
+  read -r -p "$1 [y/N] " reply
+  case "$reply" in
+    [yY]|[yY][eE][sS]) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+if ! command_exists pandoc; then
+  if command_exists brew; then
+    if confirm_install "Pandoc is not installed. Install it with Homebrew now?"; then
+      brew install pandoc || exit 1
+    else
+      echo "Pandoc is required. Please install it and run start.command again."
+      exit 1
+    fi
+  else
+    echo "Pandoc is required. Please install it and run start.command again."
+    exit 1
+  fi
+fi
+
 xattr -dr com.apple.quarantine "$APP_DIR" >/dev/null 2>&1 || true
 xattr -dr com.apple.provenance "$APP_DIR" >/dev/null 2>&1 || true
 chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
@@ -111,6 +137,46 @@ def linux_start_script() -> str:
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$SCRIPT_DIR/Markdown2CheatsheetGUI"
 
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+confirm_install() {
+  read -r -p "$1 [y/N] " reply
+  case "$reply" in
+    [yY]|[yY][eE][sS]) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+if ! command_exists pandoc; then
+  if command_exists apt-get; then
+    if confirm_install "Pandoc is not installed. Install it with apt now?"; then
+      sudo apt-get update && sudo apt-get install -y pandoc || exit 1
+    else
+      echo "Pandoc is required. Please install it and run start.sh again."
+      exit 1
+    fi
+  elif command_exists dnf; then
+    if confirm_install "Pandoc is not installed. Install it with dnf now?"; then
+      sudo dnf install -y pandoc || exit 1
+    else
+      echo "Pandoc is required. Please install it and run start.sh again."
+      exit 1
+    fi
+  elif command_exists pacman; then
+    if confirm_install "Pandoc is not installed. Install it with pacman now?"; then
+      sudo pacman -Sy --noconfirm pandoc-cli || exit 1
+    else
+      echo "Pandoc is required. Please install it and run start.sh again."
+      exit 1
+    fi
+  else
+    echo "Pandoc is required. Please install it and run start.sh again."
+    exit 1
+  fi
+fi
+
 chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
 
 cd "$APP_DIR" || exit 1
@@ -121,6 +187,28 @@ cd "$APP_DIR" || exit 1
 def windows_start_script() -> str:
     return """@echo off
 cd /d "%~dp0"
+
+where pandoc >nul 2>nul
+if errorlevel 1 (
+  echo Pandoc is not installed.
+  where winget >nul 2>nul
+  if errorlevel 1 (
+    echo Please install Pandoc and run start.bat again.
+    pause
+    exit /b 1
+  )
+  set /p INSTALL_PANDOC=Install Pandoc with winget now? [y/N] 
+  if /i "%INSTALL_PANDOC%"=="y" (
+    winget install -e --id JohnMacFarlane.Pandoc
+  ) else if /i "%INSTALL_PANDOC%"=="yes" (
+    winget install -e --id JohnMacFarlane.Pandoc
+  ) else (
+    echo Pandoc is required.
+    pause
+    exit /b 1
+  )
+)
+
 start "" "%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe"
 """
 

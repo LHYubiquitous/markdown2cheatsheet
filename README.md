@@ -63,6 +63,8 @@ Double-click launchers included in the repository:
 - Windows: `start.bat`
 - Linux: `start.sh`
 
+These launchers check required dependencies first and can try to install missing tools automatically when supported by the system package manager.
+
 Start the GUI manually:
 
 ```bash

@@ -63,6 +63,8 @@ pandoc --version
 - Windows：`start.bat`
 - Linux：`start.sh`
 
+这些启动文件会先检查必需依赖；如果系统支持对应包管理器，也会尝试自动安装缺失工具。
+
 手动启动图形界面：
 
 ```bash
