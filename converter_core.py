@@ -183,7 +183,7 @@ def convert_markdown(
             str(override_file),
             "--metadata",
             f"title={page_title}",
-            "--syntax-highlighting",
+            "--highlight-style",
             "pygments",
             "--output",
             str(raw_html),
