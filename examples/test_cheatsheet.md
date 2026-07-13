@@ -330,6 +330,117 @@ def knapsack(weights, values, W):
     return dp[n][W]
 ```
 
+## Correctness Proof Templates 正确性证明模板
+
+### 1.6 Exchange Argument 交换论证 ★ (贪心正确性)
+
+设 $G=$ 贪心解，$O=$ 最优解。若不同，在第一个不同处把 $O$ 换成 $G$，代价不增，重复直到 $O=G$。
+
+> Let G be the greedy solution and O be any optimal solution. Suppose G != O.
+>
+> Let i be the first position where G and O differ. In O, swap [O's choice at i] with [G's choice at i].
+>
+> This swap [does not decrease the objective / keeps the solution feasible] because [brief argument].
+>
+> Repeating this exchange transforms O into G without worsening the objective.
+>
+> Therefore G is optimal. ✓
+
+- **区间调度**: 换 $o \to g$ (更早结束): 仍可行，后续选择不受影响，大小不变。
+- **Kruskal**: 取 $x \in OPT \setminus KRUS$。加 $x$ 形成环 $C$，某 $y \in C \cap (KRUS \setminus OPT)$，$w(y) \leq w(x)$。换 $y \to x$ 不增代价。矛盾 → $KRUS=MST$。
+- **加权完成时间**: ==排序依据 $w_j/t_j$ 降序== (Smith 法则)。
+
+### Counterexample 反例 ★
+
+构造小实例 (3-5 元素)，贪心给出次优解，手动给出更优解。
+
+> Consider the following instance: [describe small instance concisely].
+>
+> The greedy algorithm [describe what it does] and outputs [X] with [objective value A].
+>
+> However, the solution [Y] is also valid and achieves [objective value B < A / B > A].
+>
+> Therefore the greedy algorithm is not optimal (correct). ✓
+
+### 1.7 D&C Correctness 分治正确性 ★
+
+基情形直接验证，归纳步骤证每种情形覆盖 + 合并正确。
+
+> **Claim:** The algorithm is correct for all inputs of size n.
+>
+> **Base case:** For $n \leq$ [threshold], the algorithm [directly computes the correct answer]. ✓
+>
+> **Inductive hypothesis (IH):** Assume the algorithm is correct for all inputs of size < n.
+>
+> **Inductive step:** The DIVIDE step produces subproblems of size < n. By IH, each recursive call returns the correct result. Every input of size n falls into exactly one of the cases [list cases] (exhaustive and mutually exclusive). The COMBINE step correctly merges the recursive results because [brief argument]. Therefore the algorithm is correct for size n. ✓
+
+### Loop Invariant 循环不变式
+
+适合证明排序、扫描线、双指针、栈队列算法。
+
+1. **Initialization 初始化:** 循环开始前，不变式成立。
+2. **Maintenance 保持:** 若某轮开始时成立，执行循环体后下一轮仍成立。
+3. **Termination 终止:** 循环结束时，不变式推出目标结论。
+
+| Algorithm | Invariant | Termination gives |
+| --- | --- | --- |
+| Insertion sort | 左侧前缀始终有序 | 整个数组有序 |
+| Two pointers | 被排除区间不含更优解 | 当前答案最优 |
+| BFS | 队列按距离非降序出队 | 最短路层次正确 |
+| Dijkstra | 已出堆点距离已确定 | 单源最短路 |
+
+### Master Theorem 主定理
+
+若 $T(n)=aT(n/b)+f(n)$，比较 $f(n)$ 与 $n^{\log_b a}$。
+
+| Case | Condition | Result |
+| --- | --- | --- |
+| Case 1 | $f(n)=O(n^{\log_b a-\epsilon})$ | $T(n)=\Theta(n^{\log_b a})$ |
+| Case 2 | $f(n)=\Theta(n^{\log_b a}\log^k n)$ | $T(n)=\Theta(n^{\log_b a}\log^{k+1} n)$ |
+| Case 3 | $f(n)=\Omega(n^{\log_b a+\epsilon})$ and regularity | $T(n)=\Theta(f(n))$ |
+
+**Examples:** Merge sort $T(n)=2T(n/2)+n=\Theta(n\log n)$; binary search $T(n)=T(n/2)+1=\Theta(\log n)$.
+
+## Markdown Stress Tests 混合格式测试
+
+### CJK, Emphasis, and Inline Math 中文混排
+
+这段用于测试中文、English words、`inline code`、**bold 粗体**、*italic 斜体*、==mark 高亮==、以及 $a_i + b_i \leq c_i$ 的行内数学在多栏中的换行表现。
+
+- 复杂度记号: $O(n\log n)$, $\Theta(V+E)$, $\Omega(n^2)$。
+- 常见证明词: 因为 / therefore / hence / contradiction / WLOG。
+- 边界条件: 空数组、单元素、重复元素、负权边、断开图。
+
+### Mixed Lists 多层列表
+
+1. Greedy 贪心
+   - choose locally optimal item
+   - prove with exchange argument
+   - disprove with counterexample
+2. DP 动态规划
+   - state: `dp[i][j]`
+   - transition: $dp[i]=\min(dp[i], dp[j]+cost)$
+   - order: topological / increasing length / increasing capacity
+3. Graph 图论
+   - BFS: unweighted shortest path
+   - DFS: components, cycle detection, topo sort
+   - MST: Kruskal / Prim
+
+### Dense Formula Table 公式表
+
+| Topic | Formula | Notes |
+| --- | --- | --- |
+| Arithmetic series | $\sum_{i=1}^{n} i = n(n+1)/2$ | 常用于双重循环 |
+| Geometric series | $\sum_{i=0}^{k} 2^i = 2^{k+1}-1$ | 分治树节点数 |
+| Harmonic | $H_n=\Theta(\log n)$ | randomized analysis |
+| Binomial | $\binom{n}{k}=\frac{n!}{k!(n-k)!}$ | combinations |
+
+### Long Quote 长引用
+
+> A proof is useful only when every step can be checked locally. In an exam setting, prefer a short invariant, a clear exchange, or a tiny counterexample over a long narrative.
+>
+> 证明不是把直觉写长，而是把关键约束写清楚：状态是什么、保持了什么、结束时推出什么。
+
 ## Regex Quick Reference
 
 | Pattern | Matches |

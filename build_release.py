@@ -12,6 +12,7 @@ from pathlib import Path
 
 import PyInstaller.__main__
 
+from pandoc_support import MIN_PANDOC_VERSION
 from version import get_filename_version, get_release_tag, get_version
 
 
@@ -22,6 +23,7 @@ RELEASE_DIR = ROOT_DIR / "release"
 PYINSTALLER_CONFIG_DIR = ROOT_DIR / ".pyinstaller"
 SPEC_FILE = ROOT_DIR / "Markdown2CheatsheetGUI.spec"
 APP_NAME = "Markdown2CheatsheetGUI"
+ICON_FILE = ROOT_DIR / "assets" / "markdown2cheatsheet.png"
 
 
 def normalized_platform() -> str:
@@ -80,6 +82,10 @@ def build(clean: bool) -> None:
         add_data_argument(ROOT_DIR / "examples"),
         "--add-data",
         add_data_argument(ROOT_DIR / "cheatsheet.css", "."),
+        "--add-data",
+        add_data_argument(ROOT_DIR / "assets"),
+        "--icon",
+        str(ICON_FILE),
     ]
     PyInstaller.__main__.run(options)
 
@@ -91,137 +97,404 @@ def write_text_file(path: Path, content: str, executable: bool = False) -> None:
 
 
 def macos_start_script() -> str:
-    return """#!/bin/bash
+    return f"""#!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$SCRIPT_DIR/Markdown2CheatsheetGUI"
+LAUNCHER_NAME="markdown2cheatsheet.command"
+MIN_PANDOC_VERSION="{MIN_PANDOC_VERSION}"
 
-command_exists() {
+command_exists() {{
   command -v "$1" >/dev/null 2>&1
-}
+}}
 
-confirm_install() {
+confirm_install() {{
   read -r -p "$1 [y/N] " reply
   case "$reply" in
     [yY]|[yY][eE][sS]) return 0 ;;
     *) return 1 ;;
   esac
-}
+}}
 
-if ! command_exists pandoc; then
-  if command_exists brew; then
-    if confirm_install "Pandoc is not installed. Install it with Homebrew now?"; then
-      brew install pandoc || exit 1
-    else
-      echo "Pandoc is required. Please install it and run start.command again."
-      exit 1
-    fi
-  else
-    echo "Pandoc is required. Please install it and run start.command again."
-    exit 1
+compare_versions() {{
+  awk -v current="$1" -v minimum="$2" '
+  function split_version(value, output, count, i) {{
+    count = split(value, output, ".")
+    for (i = 1; i <= count; i++) output[i] += 0
+    return count
+  }}
+  BEGIN {{
+    current_count = split_version(current, a)
+    minimum_count = split_version(minimum, b)
+    max_count = current_count > minimum_count ? current_count : minimum_count
+    for (i = 1; i <= max_count; i++) {{
+      current_part = (i in a) ? a[i] : 0
+      minimum_part = (i in b) ? b[i] : 0
+      if (current_part > minimum_part) exit 0
+      if (current_part < minimum_part) exit 1
+    }}
+    exit 0
+  }}'
+}}
+
+pandoc_version() {{
+  "$1" --version 2>/dev/null | awk 'NR == 1 {{ for (i = 1; i <= NF; i++) if ($i ~ /^[0-9]+(\\.[0-9]+)+$/) {{ print $i; exit }} }}'
+}}
+
+validate_pandoc_after_install() {{
+  local verb="$1"
+  if ! command_exists pandoc; then
+    echo "Pandoc was $verb, but the current terminal cannot find it yet."
+    echo "Please close this window and run $LAUNCHER_NAME again."
+    return 0
   fi
-fi
+
+  local installed_version
+  installed_version="$(pandoc_version pandoc)"
+  if [ -z "$installed_version" ]; then
+    echo "Pandoc was $verb, but its version could not be detected."
+    echo "Please close this window and run $LAUNCHER_NAME again."
+    return 0
+  fi
+
+  if compare_versions "$installed_version" "$MIN_PANDOC_VERSION"; then
+    echo "Pandoc $installed_version was $verb successfully."
+    return 0
+  fi
+
+  echo "Pandoc $installed_version was $verb from your Linux package manager, but markdown2cheatsheet requires $MIN_PANDOC_VERSION or later."
+  echo "Your distribution repository may not provide a new enough Pandoc package. Please install a newer Pandoc release manually, then run $LAUNCHER_NAME again."
+  return 1
+}}
+
+install_or_update_pandoc() {{
+  local action="$1"
+  local prompt
+  local verb
+
+  if [ "$action" = "update" ]; then
+    prompt="Pandoc is below the required version $MIN_PANDOC_VERSION. Update it with Homebrew now?"
+    verb="updated"
+  else
+    prompt="Pandoc is not installed. Install it with Homebrew now?"
+    verb="installed"
+  fi
+
+  if command_exists brew; then
+    if confirm_install "$prompt"; then
+      if [ "$action" = "update" ]; then
+        brew upgrade pandoc
+      else
+        brew install pandoc
+      fi
+      local status=$?
+      if [ $status -eq 0 ]; then
+        echo "Pandoc was $verb successfully."
+      fi
+      return $status
+    fi
+  fi
+
+  if [ "$action" = "update" ]; then
+    echo "Pandoc $MIN_PANDOC_VERSION or later is required. Please update it and run $LAUNCHER_NAME again."
+  else
+    echo "Pandoc $MIN_PANDOC_VERSION or later is required. Please install it and run $LAUNCHER_NAME again."
+  fi
+  return 1
+}}
+
+ensure_pandoc() {{
+  if ! command_exists pandoc; then
+    install_or_update_pandoc "install" || return 1
+    echo "Please close this window and run $LAUNCHER_NAME again so the new Pandoc version can be detected."
+    return 1
+  fi
+
+  local detected_version
+  detected_version="$(pandoc_version pandoc)"
+  if [ -z "$detected_version" ]; then
+    echo "Pandoc is installed, but its version could not be detected. Please check your Pandoc installation."
+    return 1
+  fi
+
+  if ! compare_versions "$detected_version" "$MIN_PANDOC_VERSION"; then
+    echo "Detected Pandoc $detected_version, but markdown2cheatsheet requires $MIN_PANDOC_VERSION or later."
+    install_or_update_pandoc "update" || return 1
+    echo "Please close this window and run $LAUNCHER_NAME again so the updated Pandoc version can be detected."
+    return 1
+  fi
+
+  echo "Pandoc $detected_version detected. Starting markdown2cheatsheet..."
+  return 0
+}}
+
+ensure_pandoc || exit 1
 
 xattr -dr com.apple.quarantine "$APP_DIR" >/dev/null 2>&1 || true
 xattr -dr com.apple.provenance "$APP_DIR" >/dev/null 2>&1 || true
 chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
 
 cd "$APP_DIR" || exit 1
+echo "When you are finished, return to this window and press Ctrl+C to stop the local service."
 ./Markdown2CheatsheetGUI
+status=$?
+echo
+echo "markdown2cheatsheet has stopped. You can close this window now."
+exit $status
 """
 
 
 def linux_start_script() -> str:
-    return """#!/bin/bash
+    return f"""#!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$SCRIPT_DIR/Markdown2CheatsheetGUI"
+LAUNCHER_NAME="markdown2cheatsheet.sh"
+MIN_PANDOC_VERSION="{MIN_PANDOC_VERSION}"
 
-command_exists() {
+command_exists() {{
   command -v "$1" >/dev/null 2>&1
-}
+}}
 
-confirm_install() {
+confirm_install() {{
   read -r -p "$1 [y/N] " reply
   case "$reply" in
     [yY]|[yY][eE][sS]) return 0 ;;
     *) return 1 ;;
   esac
-}
+}}
 
-if ! command_exists pandoc; then
+compare_versions() {{
+  awk -v current="$1" -v minimum="$2" '
+  function split_version(value, output, count, i) {{
+    count = split(value, output, ".")
+    for (i = 1; i <= count; i++) output[i] += 0
+    return count
+  }}
+  BEGIN {{
+    current_count = split_version(current, a)
+    minimum_count = split_version(minimum, b)
+    max_count = current_count > minimum_count ? current_count : minimum_count
+    for (i = 1; i <= max_count; i++) {{
+      current_part = (i in a) ? a[i] : 0
+      minimum_part = (i in b) ? b[i] : 0
+      if (current_part > minimum_part) exit 0
+      if (current_part < minimum_part) exit 1
+    }}
+    exit 0
+  }}'
+}}
+
+pandoc_version() {{
+  "$1" --version 2>/dev/null | awk 'NR == 1 {{ for (i = 1; i <= NF; i++) if ($i ~ /^[0-9]+(\\.[0-9]+)+$/) {{ print $i; exit }} }}'
+}}
+
+install_or_update_pandoc() {{
+  local action="$1"
+  local prompt
+  local verb
+
+  if [ "$action" = "update" ]; then
+    prompt="Pandoc is below the required version $MIN_PANDOC_VERSION. Update it now?"
+    verb="updated"
+  else
+    prompt="Pandoc is not installed. Install it now?"
+    verb="installed"
+  fi
+
   if command_exists apt-get; then
-    if confirm_install "Pandoc is not installed. Install it with apt now?"; then
-      sudo apt-get update && sudo apt-get install -y pandoc || exit 1
-    else
-      echo "Pandoc is required. Please install it and run start.sh again."
-      exit 1
+    if confirm_install "$prompt"; then
+      sudo apt-get update && sudo apt-get install -y pandoc
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      validate_pandoc_after_install "$verb"
+      return $?
     fi
   elif command_exists dnf; then
-    if confirm_install "Pandoc is not installed. Install it with dnf now?"; then
-      sudo dnf install -y pandoc || exit 1
-    else
-      echo "Pandoc is required. Please install it and run start.sh again."
-      exit 1
+    if confirm_install "$prompt"; then
+      sudo dnf install -y pandoc
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      validate_pandoc_after_install "$verb"
+      return $?
     fi
   elif command_exists pacman; then
-    if confirm_install "Pandoc is not installed. Install it with pacman now?"; then
-      sudo pacman -Sy --noconfirm pandoc-cli || exit 1
-    else
-      echo "Pandoc is required. Please install it and run start.sh again."
-      exit 1
+    if confirm_install "$prompt"; then
+      sudo pacman -Sy --noconfirm pandoc-cli
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      validate_pandoc_after_install "$verb"
+      return $?
     fi
-  else
-    echo "Pandoc is required. Please install it and run start.sh again."
-    exit 1
   fi
-fi
+
+  if [ "$action" = "update" ]; then
+    echo "Pandoc $MIN_PANDOC_VERSION or later is required. Please update it and run $LAUNCHER_NAME again."
+  else
+    echo "Pandoc $MIN_PANDOC_VERSION or later is required. Please install it and run $LAUNCHER_NAME again."
+  fi
+  return 1
+}}
+
+ensure_pandoc() {{
+  if ! command_exists pandoc; then
+    install_or_update_pandoc "install" || return 1
+    echo "Please close this window and run $LAUNCHER_NAME again so the new Pandoc version can be detected."
+    return 1
+  fi
+
+  local detected_version
+  detected_version="$(pandoc_version pandoc)"
+  if [ -z "$detected_version" ]; then
+    echo "Pandoc is installed, but its version could not be detected. Please check your Pandoc installation."
+    return 1
+  fi
+
+  if ! compare_versions "$detected_version" "$MIN_PANDOC_VERSION"; then
+    echo "Detected Pandoc $detected_version, but markdown2cheatsheet requires $MIN_PANDOC_VERSION or later."
+    install_or_update_pandoc "update" || return 1
+    echo "Please close this window and run $LAUNCHER_NAME again so the updated Pandoc version can be detected."
+    return 1
+  fi
+
+  echo "Pandoc $detected_version detected. Starting markdown2cheatsheet..."
+  return 0
+}}
+
+ensure_pandoc || exit 1
 
 chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
 
 cd "$APP_DIR" || exit 1
+echo "When you are finished, return to this window and press Ctrl+C to stop the local service."
 ./Markdown2CheatsheetGUI
+status=$?
+echo
+echo "markdown2cheatsheet has stopped. You can close this window now."
+exit $status
 """
 
 
 def windows_start_script() -> str:
-    return """@echo off
+    return f"""@echo off
 setlocal
 cd /d "%~dp0"
 
+set "LAUNCHER_NAME=markdown2cheatsheet.bat"
+set "MIN_PANDOC_VERSION={MIN_PANDOC_VERSION}"
+set "POWERSHELL_CMD="
+set "PROMPT_REPLY="
+
+call :ensure_powershell || goto :fail
 call :ensure_pandoc || goto :fail
-start "" "%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe"
+
+echo When you are finished, return to this window and press Ctrl+C to stop the local service.
+"%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe"
+if errorlevel 1 goto :fail_runtime
+
+echo.
+echo markdown2cheatsheet has stopped. Press any key to close this window.
+pause >nul
 exit /b 0
+
+:ensure_powershell
+powershell -NoProfile -Command "exit 0" >nul 2>nul
+if not errorlevel 1 (
+  set "POWERSHELL_CMD=powershell -NoProfile"
+  exit /b 0
+)
+
+pwsh -NoProfile -Command "exit 0" >nul 2>nul
+if not errorlevel 1 (
+  set "POWERSHELL_CMD=pwsh -NoProfile"
+  exit /b 0
+)
+
+echo PowerShell is required to check the Pandoc version. Please install PowerShell and run %LAUNCHER_NAME% again.
+exit /b 1
 
 :ensure_pandoc
 where pandoc >nul 2>nul
-if not errorlevel 1 exit /b 0
+if errorlevel 1 goto :pandoc_missing
 
-echo Pandoc is not installed.
-where winget >nul 2>nul
-if errorlevel 1 (
-  echo Please install Pandoc and run start.bat again.
+set "PANDOC_VERSION="
+for /f "usebackq delims=" %%V in (`call %POWERSHELL_CMD% -Command "$line = pandoc --version | Select-Object -First 1; if ($line -match '([0-9]+(\\.[0-9]+)+)') {{ $matches[1] }}"`) do set "PANDOC_VERSION=%%V"
+
+if not defined PANDOC_VERSION (
+  echo Pandoc is installed, but its version could not be detected.
   exit /b 1
 )
 
-set /p INSTALL_PANDOC=Install Pandoc with winget now? [y/N] 
-if /i "%INSTALL_PANDOC%"=="y" goto :install_pandoc
-if /i "%INSTALL_PANDOC%"=="yes" goto :install_pandoc
-echo Pandoc is required.
+call %POWERSHELL_CMD% -Command "$current = [version]'%PANDOC_VERSION%'; $minimum = [version]'%MIN_PANDOC_VERSION%'; if ($current -ge $minimum) {{ exit 0 }} else {{ exit 1 }}"
+if errorlevel 1 goto :pandoc_too_old
+
+echo Pandoc %PANDOC_VERSION% detected. Starting markdown2cheatsheet...
+exit /b 0
+
+:pandoc_missing
+echo Pandoc is not installed.
+call :install_or_update_pandoc install || exit /b 1
+echo Please close this window and run %LAUNCHER_NAME% again so the new Pandoc version can be detected.
 exit /b 1
 
-:install_pandoc
-winget install -e --id JohnMacFarlane.Pandoc
+:pandoc_too_old
+echo Detected Pandoc %PANDOC_VERSION%, but markdown2cheatsheet requires %MIN_PANDOC_VERSION% or later.
+call :install_or_update_pandoc update || exit /b 1
+echo Please close this window and run %LAUNCHER_NAME% again so the updated Pandoc version can be detected.
+exit /b 1
+
+:install_or_update_pandoc
+where winget >nul 2>nul
 if errorlevel 1 (
-  echo Pandoc installation failed.
+  if /i "%~1"=="update" (
+    echo Please update Pandoc to %MIN_PANDOC_VERSION% or later and run %LAUNCHER_NAME% again.
+  ) else (
+    echo Please install Pandoc and run %LAUNCHER_NAME% again.
+  )
   exit /b 1
 )
 
-where pandoc >nul 2>nul
-if not errorlevel 1 exit /b 0
+if /i "%~1"=="update" (
+  call :confirm_yes "Pandoc is below the required version %MIN_PANDOC_VERSION%. Update it with winget now? [y/N] "
+  if errorlevel 1 (
+    echo Pandoc %MIN_PANDOC_VERSION% or later is required.
+    exit /b 1
+  )
+  winget upgrade -e --id JohnMacFarlane.Pandoc
+) else (
+  call :confirm_yes "Install Pandoc with winget now? [y/N] "
+  if errorlevel 1 (
+    echo Pandoc %MIN_PANDOC_VERSION% or later is required.
+    exit /b 1
+  )
+  winget install -e --id JohnMacFarlane.Pandoc
+)
 
-echo Pandoc was installed, but the current terminal cannot find it yet.
-echo Please close this window and run start.bat again.
+if errorlevel 1 (
+  echo Pandoc %~1 failed.
+  exit /b 1
+)
+
+echo Pandoc %~1 completed successfully.
+exit /b 0
+
+:confirm_yes
+set "PROMPT_REPLY="
+set /p PROMPT_REPLY=%~1
+if /i "%PROMPT_REPLY%"=="y" exit /b 0
+if /i "%PROMPT_REPLY%"=="yes" exit /b 0
+exit /b 1
+
+:fail_runtime
+echo.
+echo markdown2cheatsheet has stopped with an error. Press any key to close this window.
+pause >nul
 exit /b 1
 
 :fail
@@ -234,17 +507,20 @@ def release_readme() -> str:
     platform_name = normalized_platform()
     version = get_release_tag()
     if platform_name == "macos":
-        start_name = "start.command"
+        start_name = "markdown2cheatsheet.command"
         extra = (
             "If macOS shows a security warning the first time, right-click "
-            "`start.command` and choose Open."
+            "`markdown2cheatsheet.command` and choose Open."
         )
     elif platform_name == "windows":
-        start_name = "start.bat"
+        start_name = "markdown2cheatsheet.bat"
         extra = "If Windows SmartScreen appears, choose More info and then Run anyway."
     else:
-        start_name = "start.sh"
-        extra = "If needed, run `chmod +x start.sh` once and then double-click or run it."
+        start_name = "markdown2cheatsheet.sh"
+        extra = (
+            "If needed, run `chmod +x markdown2cheatsheet.sh` once and then "
+            "double-click or run it."
+        )
 
     return "\n".join(
         [
@@ -279,11 +555,11 @@ def stage_release_directory() -> Path:
 
     platform_name = normalized_platform()
     if platform_name == "macos":
-        write_text_file(release_root / "start.command", macos_start_script(), executable=True)
+        write_text_file(release_root / "markdown2cheatsheet.command", macos_start_script(), executable=True)
     elif platform_name == "windows":
-        write_text_file(release_root / "start.bat", windows_start_script())
+        write_text_file(release_root / "markdown2cheatsheet.bat", windows_start_script())
     else:
-        write_text_file(release_root / "start.sh", linux_start_script(), executable=True)
+        write_text_file(release_root / "markdown2cheatsheet.sh", linux_start_script(), executable=True)
 
     write_text_file(release_root / "README.txt", release_readme())
     return release_root

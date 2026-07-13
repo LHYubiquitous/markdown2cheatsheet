@@ -3,6 +3,7 @@
 本文件面向维护者和贡献者。
 
 [用户说明](../README.md)
+[英文使用手册](USAGE.md)
 
 ## 项目结构
 
@@ -10,10 +11,13 @@
 markdown2cheatsheet/
 ├── README.md
 ├── LICENSE
-├── start.command
-├── start.bat
-├── start.sh
+├── markdown2cheatsheet.command
+├── markdown2cheatsheet.bat
+├── markdown2cheatsheet.sh
 ├── build_release.py
+├── assets/
+│   └── markdown2cheatsheet.png
+├── pandoc_support.py
 ├── version.py
 ├── .github/workflows/
 │   └── build-release.yml
@@ -30,6 +34,8 @@ markdown2cheatsheet/
 │   └── app.js
 ├── docs/
 │   ├── DEVELOPMENT.md
+│   ├── USAGE.md
+│   ├── USAGE_CN.md
 │   └── README_CN.md
 └── examples/
     └── test_cheatsheet.md
@@ -60,7 +66,7 @@ python3 md2cheatsheet.py --list-templates
 在当前系统上构建本平台发布版：
 
 ```bash
-python3 -m pip install pyinstaller
+python3 -m pip install pyinstaller pillow
 python3 build_release.py
 ```
 
@@ -77,9 +83,9 @@ python3 build_release.py
 
 启动方式：
 
-- macOS：解压后运行 `start.command`
-- Windows：解压后运行 `start.bat`
-- Linux：解压后运行 `start.sh`
+- macOS：解压后运行 `markdown2cheatsheet.command`
+- Windows：解压后运行 `markdown2cheatsheet.bat`
+- Linux：解压后运行 `markdown2cheatsheet.sh`
 
 ## 版本号
 

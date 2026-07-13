@@ -27,6 +27,7 @@ from version import get_version
 
 ROOT_DIR = get_app_root()
 GUI_DIR = ROOT_DIR / "gui"
+ASSETS_DIR = ROOT_DIR / "assets"
 DEFAULT_EXAMPLE = ROOT_DIR / "examples" / "test_cheatsheet.md"
 
 
@@ -43,6 +44,9 @@ class GuiHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/styles.css":
             self._serve_file("styles.css", "text/css; charset=utf-8")
+            return
+        if parsed.path == "/favicon.png":
+            self._serve_asset("markdown2cheatsheet.png", "image/png")
             return
         if parsed.path == "/api/templates":
             self._send_json(list_templates())
@@ -140,6 +144,18 @@ class GuiHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
+
+    def _serve_asset(self, filename: str, content_type: str) -> None:
+        path = ASSETS_DIR / filename
+        if not path.exists():
+            self.send_error(HTTPStatus.NOT_FOUND, "Not found")
+            return
+        content = path.read_bytes()
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
 
     def _default_markdown_payload(self) -> dict:
         if not DEFAULT_EXAMPLE.exists():
