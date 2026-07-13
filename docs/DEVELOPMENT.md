@@ -66,7 +66,7 @@ python3 md2cheatsheet.py --list-templates
 Build a native GUI release on your current platform:
 
 ```bash
-python3 -m pip install pyinstaller
+python3 -m pip install pyinstaller pillow
 python3 build_release.py
 ```
 

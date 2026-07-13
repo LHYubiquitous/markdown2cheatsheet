@@ -66,7 +66,7 @@ python3 md2cheatsheet.py --list-templates
 在当前系统上构建本平台发布版：
 
 ```bash
-python3 -m pip install pyinstaller
+python3 -m pip install pyinstaller pillow
 python3 build_release.py
 ```
 
