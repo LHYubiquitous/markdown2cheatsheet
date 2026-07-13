@@ -360,6 +360,7 @@ cd /d "%~dp0"
 set "LAUNCHER_NAME=markdown2cheatsheet.bat"
 set "MIN_PANDOC_VERSION={MIN_PANDOC_VERSION}"
 set "POWERSHELL_CMD="
+set "PROMPT_REPLY="
 
 call :ensure_powershell || goto :fail
 call :ensure_pandoc || goto :fail
@@ -431,15 +432,15 @@ if errorlevel 1 (
 )
 
 if /i "%~1"=="update" (
-  set /p INSTALL_PANDOC=Pandoc is below the required version %MIN_PANDOC_VERSION%. Update it with winget now? [y/N] 
-  if /i not "%INSTALL_PANDOC%"=="y" if /i not "%INSTALL_PANDOC%"=="yes" (
+  call :confirm_yes "Pandoc is below the required version %MIN_PANDOC_VERSION%. Update it with winget now? [y/N] "
+  if errorlevel 1 (
     echo Pandoc %MIN_PANDOC_VERSION% or later is required.
     exit /b 1
   )
   winget upgrade -e --id JohnMacFarlane.Pandoc
 ) else (
-  set /p INSTALL_PANDOC=Install Pandoc with winget now? [y/N] 
-  if /i not "%INSTALL_PANDOC%"=="y" if /i not "%INSTALL_PANDOC%"=="yes" (
+  call :confirm_yes "Install Pandoc with winget now? [y/N] "
+  if errorlevel 1 (
     echo Pandoc %MIN_PANDOC_VERSION% or later is required.
     exit /b 1
   )
@@ -453,6 +454,13 @@ if errorlevel 1 (
 
 echo Pandoc %~1 completed successfully.
 exit /b 0
+
+:confirm_yes
+set "PROMPT_REPLY="
+set /p PROMPT_REPLY=%~1
+if /i "%PROMPT_REPLY%"=="y" exit /b 0
+if /i "%PROMPT_REPLY%"=="yes" exit /b 0
+exit /b 1
 
 :fail_runtime
 echo.
