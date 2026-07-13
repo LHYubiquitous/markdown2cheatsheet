@@ -80,6 +80,7 @@ python3 build_release.py
 - `markdown2cheatsheet-gui-v1.0.0-macos-arm64.zip`
 - `markdown2cheatsheet-gui-v1.0.0-windows-x64.zip`
 - `markdown2cheatsheet-gui-v1.0.0-linux-x64.zip`
+- `markdown2cheatsheet-gui-v1.0.0-linux-arm64.zip`
 
 启动方式：
 

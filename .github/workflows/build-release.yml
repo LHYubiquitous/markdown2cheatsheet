@@ -14,7 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        include:
+          - os: macos-latest
+            artifact-name: macos-release
+          - os: windows-latest
+            artifact-name: windows-release
+          - os: ubuntu-latest
+            artifact-name: linux-x64-release
+          - os: ubuntu-24.04-arm
+            artifact-name: linux-arm64-release
 
     runs-on: ${{ matrix.os }}
 
@@ -38,7 +46,7 @@ jobs:
       - name: Upload release archive
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-release
+          name: ${{ matrix.artifact-name }}
           path: release/*.zip
           if-no-files-found: error
 

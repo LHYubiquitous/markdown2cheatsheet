@@ -6,6 +6,21 @@
 [使用手册](USAGE_CN.md)  
 [开发说明](DEVELOPMENT_CN.md)
 
+## 目录
+
+- [效果预览](#效果预览)
+- [功能特点](#功能特点)
+- [依赖](#依赖)
+- [环境配置](#环境配置)
+- [项目如何工作](#项目如何工作)
+- [快速开始](#快速开始)
+- [命令行使用](#命令行使用)
+- [模板选项](#模板选项)
+- [导出 PDF](#导出-pdf)
+- [常见故障](#常见故障)
+- [面向开发者](#面向开发者)
+- [许可证](#许可证)
+
 ## 效果预览
 
 ![效果预览](../outputview.jpg)
@@ -76,6 +91,11 @@ Linux 启动器支持：
 - Ubuntu/Debian：使用 `apt-get` 安装 Python 和 Pandoc
 - Fedora：使用 `dnf` 安装 Python 和 Pandoc
 - Arch/Manjaro：使用 `pacman` 安装 `python` 和 `pandoc-cli`
+
+请选择和 CPU 架构匹配的 Linux 发布包：
+
+- `x86_64` 或 `amd64`：使用 `linux-x64` 发布包
+- `aarch64` 或 `arm64`：使用 `linux-arm64` 发布包
 
 部分发行版仓库可能只提供低于 `3.1.3` 的 Pandoc。遇到这种情况时，需要手动安装更新版本的 Pandoc，然后重新运行启动器。
 

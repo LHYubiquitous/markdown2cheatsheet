@@ -7,6 +7,21 @@ Convert Markdown notes into compact, print-ready cheatsheets with selectable lay
 [中文使用手册](docs/USAGE_CN.md)  
 [Developer Guide](docs/DEVELOPMENT.md)
 
+## Table of Contents
+
+- [Preview](#preview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Environment Setup](#environment-setup)
+- [How It Works](#how-it-works)
+- [Quick Start](#quick-start)
+- [CLI Usage](#cli-usage)
+- [Template Options](#template-options)
+- [Export to PDF](#export-to-pdf)
+- [Common Issues](#common-issues)
+- [For Developers](#for-developers)
+- [License](#license)
+
 ## Preview
 
 ![Output preview](outputview.jpg)
@@ -77,6 +92,11 @@ Linux launcher support:
 - Ubuntu/Debian: uses `apt-get` for Python and Pandoc
 - Fedora: uses `dnf` for Python and Pandoc
 - Arch/Manjaro: uses `pacman` with `python` and `pandoc-cli`
+
+Choose the Linux archive that matches your CPU architecture:
+
+- `x86_64` or `amd64`: use the `linux-x64` archive
+- `aarch64` or `arm64`: use the `linux-arm64` archive
 
 Some distribution repositories may provide Pandoc versions older than `3.1.3`. If your package manager installs an older version, install a newer Pandoc release manually and then run the launcher again.
 
