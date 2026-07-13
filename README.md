@@ -23,7 +23,7 @@ Convert Markdown notes into compact, print-ready cheatsheets with selectable lay
 
 | Tool | Why it is needed | Install |
 | --- | --- | --- |
-| [Pandoc](https://pandoc.org) | Converts Markdown to standalone HTML | macOS: `brew install pandoc` · Ubuntu: `sudo apt install pandoc` · Windows: `winget install JohnMacFarlane.Pandoc` |
+| [Pandoc](https://pandoc.org) | Converts Markdown to standalone HTML | macOS: `brew install pandoc` · Ubuntu/Debian: `sudo apt install pandoc` · Fedora: `sudo dnf install pandoc` · Arch/Manjaro: `sudo pacman -Sy pandoc-cli` · Windows: `winget install JohnMacFarlane.Pandoc` |
 | Python 3 | Runs the converter and local GUI | macOS/Linux: usually pre-installed · Windows: [python.org](https://python.org) |
 
 ## Environment Setup
@@ -71,6 +71,14 @@ These launchers first check whether Pandoc is installed and whether its version 
 If Pandoc is missing, they can guide installation.
 If Pandoc is too old, they can guide an update.
 After installing or updating Pandoc, relaunch the launcher once so the new version can be detected correctly.
+
+Linux launcher support:
+
+- Ubuntu/Debian: uses `apt-get` for Python and Pandoc
+- Fedora: uses `dnf` for Python and Pandoc
+- Arch/Manjaro: uses `pacman` with `python` and `pandoc-cli`
+
+Some distribution repositories may provide Pandoc versions older than `3.1.3`. If your package manager installs an older version, install a newer Pandoc release manually and then run the launcher again.
 
 Start the GUI manually:
 
@@ -163,6 +171,7 @@ python3 md2cheatsheet.py --list-templates
 
 - macOS blocks `markdown2cheatsheet.command`: try right-click `Open` first, then allow it in `System Settings > Privacy & Security` if needed
 - Pandoc still looks outdated after install or upgrade: close the current launcher window and run it again
+- Debian/Fedora/Arch package manager installs an older Pandoc: install Pandoc `3.1.3` or later manually, then rerun the launcher
 - the browser does not open automatically: visit `http://127.0.0.1:8765` manually
 - startup reports the port is already in use: close any older markdown2cheatsheet process and start it again
 

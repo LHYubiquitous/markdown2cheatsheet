@@ -119,6 +119,34 @@ Then run it again:
 
 If the system asks to install or update Pandoc, confirm the prompt and continue.
 
+The Linux launcher supports these package managers:
+
+- Ubuntu/Debian: `apt-get`
+- Fedora: `dnf`
+- Arch/Manjaro: `pacman`
+
+Manual install commands:
+
+```bash
+# Ubuntu / Debian
+sudo apt update
+sudo apt install -y python3 pandoc
+
+# Fedora
+sudo dnf install -y python3 pandoc
+
+# Arch / Manjaro
+sudo pacman -Sy --noconfirm python pandoc-cli
+```
+
+After installation, check the Pandoc version:
+
+```bash
+pandoc --version
+```
+
+Some distribution repositories may provide Pandoc versions older than `3.1.3`. If your distro package manager installs an older version, install a newer Pandoc release manually and then run `markdown2cheatsheet.sh` again.
+
 ## 6. Basic GUI Workflow
 
 After startup succeeds, the browser opens the local page.
@@ -167,6 +195,8 @@ pandoc --version
 ```
 
 If the version is too old, update Pandoc and then relaunch the launcher.
+
+On Debian, Fedora, Arch, or Manjaro, the launcher tries the system package manager first. If that package manager still provides a version lower than `3.1.3`, use a newer Pandoc release from another source, then relaunch the launcher.
 
 ### It still fails after install or update
 

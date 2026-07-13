@@ -141,6 +141,32 @@ pandoc_version() {{
   "$1" --version 2>/dev/null | awk 'NR == 1 {{ for (i = 1; i <= NF; i++) if ($i ~ /^[0-9]+(\\.[0-9]+)+$/) {{ print $i; exit }} }}'
 }}
 
+validate_pandoc_after_install() {{
+  local verb="$1"
+  if ! command_exists pandoc; then
+    echo "Pandoc was $verb, but the current terminal cannot find it yet."
+    echo "Please close this window and run $LAUNCHER_NAME again."
+    return 0
+  fi
+
+  local installed_version
+  installed_version="$(pandoc_version pandoc)"
+  if [ -z "$installed_version" ]; then
+    echo "Pandoc was $verb, but its version could not be detected."
+    echo "Please close this window and run $LAUNCHER_NAME again."
+    return 0
+  fi
+
+  if compare_versions "$installed_version" "$MIN_PANDOC_VERSION"; then
+    echo "Pandoc $installed_version was $verb successfully."
+    return 0
+  fi
+
+  echo "Pandoc $installed_version was $verb from your Linux package manager, but markdown2cheatsheet requires $MIN_PANDOC_VERSION or later."
+  echo "Your distribution repository may not provide a new enough Pandoc package. Please install a newer Pandoc release manually, then run $LAUNCHER_NAME again."
+  return 1
+}}
+
 install_or_update_pandoc() {{
   local action="$1"
   local prompt
@@ -280,28 +306,31 @@ install_or_update_pandoc() {{
     if confirm_install "$prompt"; then
       sudo apt-get update && sudo apt-get install -y pandoc
       local status=$?
-      if [ $status -eq 0 ]; then
-        echo "Pandoc was $verb successfully."
+      if [ $status -ne 0 ]; then
+        return $status
       fi
-      return $status
+      validate_pandoc_after_install "$verb"
+      return $?
     fi
   elif command_exists dnf; then
     if confirm_install "$prompt"; then
       sudo dnf install -y pandoc
       local status=$?
-      if [ $status -eq 0 ]; then
-        echo "Pandoc was $verb successfully."
+      if [ $status -ne 0 ]; then
+        return $status
       fi
-      return $status
+      validate_pandoc_after_install "$verb"
+      return $?
     fi
   elif command_exists pacman; then
     if confirm_install "$prompt"; then
       sudo pacman -Sy --noconfirm pandoc-cli
       local status=$?
-      if [ $status -eq 0 ]; then
-        echo "Pandoc was $verb successfully."
+      if [ $status -ne 0 ]; then
+        return $status
       fi
-      return $status
+      validate_pandoc_after_install "$verb"
+      return $?
     fi
   fi
 

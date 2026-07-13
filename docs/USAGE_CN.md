@@ -119,6 +119,34 @@ chmod +x markdown2cheatsheet.sh
 
 如果系统提示需要安装或更新 Pandoc，按提示确认即可。
 
+Linux 启动器支持这些包管理器：
+
+- Ubuntu/Debian：`apt-get`
+- Fedora：`dnf`
+- Arch/Manjaro：`pacman`
+
+手动安装命令：
+
+```bash
+# Ubuntu / Debian
+sudo apt update
+sudo apt install -y python3 pandoc
+
+# Fedora
+sudo dnf install -y python3 pandoc
+
+# Arch / Manjaro
+sudo pacman -Sy --noconfirm python pandoc-cli
+```
+
+安装后检查 Pandoc 版本：
+
+```bash
+pandoc --version
+```
+
+部分发行版仓库可能只提供低于 `3.1.3` 的 Pandoc。如果系统包管理器装到的版本仍然过低，需要手动安装更新版本的 Pandoc，然后重新运行 `markdown2cheatsheet.sh`。
+
 ## 6. GUI 的基本使用流程
 
 启动成功后，浏览器会打开本地页面。
@@ -167,6 +195,8 @@ pandoc --version
 ```
 
 如果版本过低，先更新，再重新运行启动器。
+
+在 Debian、Fedora、Arch 或 Manjaro 上，启动器会先尝试使用系统包管理器。如果包管理器提供的 Pandoc 仍低于 `3.1.3`，请从其他来源安装更新版本，然后重新运行启动器。
 
 ### 安装或更新完成后还是不行
 

@@ -22,7 +22,7 @@
 
 | 工具 | 用途 | 安装方式 |
 | --- | --- | --- |
-| [Pandoc](https://pandoc.org) | Markdown 转独立 HTML | macOS: `brew install pandoc` · Ubuntu: `sudo apt install pandoc` · Windows: `winget install JohnMacFarlane.Pandoc` |
+| [Pandoc](https://pandoc.org) | Markdown 转独立 HTML | macOS: `brew install pandoc` · Ubuntu/Debian: `sudo apt install pandoc` · Fedora: `sudo dnf install pandoc` · Arch/Manjaro: `sudo pacman -Sy pandoc-cli` · Windows: `winget install JohnMacFarlane.Pandoc` |
 | Python 3 | 运行转换器和本地图形界面 | macOS/Linux 通常自带；Windows 可从 [python.org](https://python.org) 安装 |
 
 ## 环境配置
@@ -70,6 +70,14 @@ pandoc --version
 如果未安装，会引导安装。
 如果版本过低，会引导更新。
 安装或更新完成后，需要重新运行一次启动器，让新版本被正确识别。
+
+Linux 启动器支持：
+
+- Ubuntu/Debian：使用 `apt-get` 安装 Python 和 Pandoc
+- Fedora：使用 `dnf` 安装 Python 和 Pandoc
+- Arch/Manjaro：使用 `pacman` 安装 `python` 和 `pandoc-cli`
+
+部分发行版仓库可能只提供低于 `3.1.3` 的 Pandoc。遇到这种情况时，需要手动安装更新版本的 Pandoc，然后重新运行启动器。
 
 macOS 用户如果第一次运行被系统拦截：
 
@@ -168,6 +176,7 @@ python3 md2cheatsheet.py --list-templates
 
 - macOS 双击 `markdown2cheatsheet.command` 被拦截：先右键打开；如果仍失败，到“系统设置 > 隐私与安全性”里放行
 - 安装或更新 Pandoc 后仍提示版本不对：关闭当前窗口后重新运行启动器
+- Debian/Fedora/Arch 的包管理器安装后版本仍过低：手动安装 Pandoc `3.1.3` 或更高版本，再重新运行启动器
 - 浏览器没有自动打开：手动访问 `http://127.0.0.1:8765`
 - 启动后提示端口占用：先关闭之前未退出的 markdown2cheatsheet 进程，再重新启动
 
