@@ -3,6 +3,7 @@
 This document is for contributors and maintainers.
 
 [User README](../README.md)
+[User Guide](USAGE.md)
 
 ## Project Structure
 
@@ -10,10 +11,13 @@ This document is for contributors and maintainers.
 markdown2cheatsheet/
 ├── README.md
 ├── LICENSE
-├── start.command
-├── start.bat
-├── start.sh
+├── markdown2cheatsheet.command
+├── markdown2cheatsheet.bat
+├── markdown2cheatsheet.sh
 ├── build_release.py
+├── assets/
+│   └── markdown2cheatsheet.png
+├── pandoc_support.py
 ├── version.py
 ├── .github/workflows/
 │   └── build-release.yml
@@ -30,6 +34,8 @@ markdown2cheatsheet/
 │   └── app.js
 ├── docs/
 │   ├── DEVELOPMENT.md
+│   ├── USAGE.md
+│   ├── USAGE_CN.md
 │   └── README_CN.md
 └── examples/
     └── test_cheatsheet.md
@@ -77,9 +83,9 @@ Naming rule:
 
 Release startup:
 
-- macOS: extract the zip and launch `start.command`
-- Windows: extract the zip and launch `start.bat`
-- Linux: extract the zip and launch `start.sh`
+- macOS: extract the zip and launch `markdown2cheatsheet.command`
+- Windows: extract the zip and launch `markdown2cheatsheet.bat`
+- Linux: extract the zip and launch `markdown2cheatsheet.sh`
 
 ## Versioning
 

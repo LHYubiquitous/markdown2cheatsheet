@@ -3,6 +3,8 @@
 Convert Markdown notes into compact, print-ready cheatsheets with selectable layout templates and a local GUI.
 
 [中文文档](docs/README_CN.md)  
+[User Guide](docs/USAGE.md)  
+[中文使用手册](docs/USAGE_CN.md)  
 [Developer Guide](docs/DEVELOPMENT.md)
 
 ## Preview
@@ -57,13 +59,18 @@ The conversion flow is:
 
 ## Quick Start
 
+For a step-by-step end-user guide with startup troubleshooting and macOS security prompts, see the [User Guide](docs/USAGE.md).
+
 Double-click launchers included in the repository:
 
-- macOS: `start.command`
-- Windows: `start.bat`
-- Linux: `start.sh`
+- macOS: `markdown2cheatsheet.command`
+- Windows: `markdown2cheatsheet.bat`
+- Linux: `markdown2cheatsheet.sh`
 
-These launchers check required dependencies first and can try to install missing tools automatically when supported by the system package manager.
+These launchers first check whether Pandoc is installed and whether its version is at least `3.10`.
+If Pandoc is missing, they can guide installation.
+If Pandoc is too old, they can guide an update.
+After installing or updating Pandoc, relaunch the launcher once so the new version can be detected correctly.
 
 Start the GUI manually:
 
@@ -151,6 +158,15 @@ python3 md2cheatsheet.py --list-templates
 3. Set paper to `A4`, orientation to `Landscape`, and margins to `Minimum`.
 4. Disable `Headers and footers`.
 5. Save as PDF.
+
+## Common Issues
+
+- macOS blocks `markdown2cheatsheet.command`: try right-click `Open` first, then allow it in `System Settings > Privacy & Security` if needed
+- Pandoc still looks outdated after install or upgrade: close the current launcher window and run it again
+- the browser does not open automatically: visit `http://127.0.0.1:8765` manually
+- startup reports the port is already in use: close any older markdown2cheatsheet process and start it again
+
+See the full [User Guide](docs/USAGE.md) for the detailed troubleshooting flow.
 
 ## For Developers
 

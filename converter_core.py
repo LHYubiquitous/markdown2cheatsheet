@@ -9,6 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from pandoc_support import MIN_PANDOC_VERSION, detect_pandoc_version, is_version_at_least
 from postprocess import process
 from runtime_paths import get_app_root
 from template_presets import (
@@ -28,23 +29,35 @@ BASE_CSS = ROOT_DIR / "cheatsheet.css"
 
 
 def ensure_pandoc() -> str:
-    """Locate pandoc and raise a friendly error when missing."""
+    """Locate pandoc and raise a friendly error when missing or too old."""
     pandoc = shutil.which("pandoc")
-    if pandoc:
-        return pandoc
+    candidates: list[str | Path] = [pandoc] if pandoc else []
 
     if sys.platform.startswith("win"):
         username = Path.home().name
-        candidates = [
-            Path(f"/c/Users/{username}/AppData/Local/Pandoc/pandoc.exe"),
-            Path("/c/Program Files/Pandoc/pandoc.exe"),
-        ]
-        for candidate in candidates:
-            if candidate.exists():
-                return str(candidate)
+        candidates.extend(
+            [
+                Path(f"/c/Users/{username}/AppData/Local/Pandoc/pandoc.exe"),
+                Path("/c/Program Files/Pandoc/pandoc.exe"),
+            ]
+        )
+
+    for candidate in candidates:
+        if not candidate:
+            continue
+        version = detect_pandoc_version(candidate)
+        if not version:
+            continue
+        if not is_version_at_least(version):
+            raise RuntimeError(
+                f"pandoc {version} is below the required {MIN_PANDOC_VERSION}. "
+                "Please update pandoc, restart markdown2cheatsheet, and try again."
+            )
+        return str(candidate)
 
     raise RuntimeError(
-        "pandoc is not installed or not in PATH. Install it first, then rerun the conversion."
+        f"pandoc {MIN_PANDOC_VERSION}+ is required but was not found. "
+        "Install or update pandoc, restart markdown2cheatsheet, and try again."
     )
 
 

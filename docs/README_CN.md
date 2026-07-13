@@ -3,6 +3,7 @@
 将 Markdown 笔记转换为高密度、可打印的 cheatsheet，并提供可直接使用的本地图形界面。
 
 [English README](../README.md)  
+[使用手册](USAGE_CN.md)  
 [开发说明](DEVELOPMENT_CN.md)
 
 ## 效果预览
@@ -57,13 +58,24 @@ pandoc --version
 
 ## 快速开始
 
+如果你希望直接看面向用户的详细说明，包括 macOS 权限放行、启动失败排查和常见故障，请先看 [使用手册](USAGE_CN.md)。
+
 仓库中已附带可双击启动文件：
 
-- macOS：`start.command`
-- Windows：`start.bat`
-- Linux：`start.sh`
+- macOS：`markdown2cheatsheet.command`
+- Windows：`markdown2cheatsheet.bat`
+- Linux：`markdown2cheatsheet.sh`
 
-这些启动文件会先检查必需依赖；如果系统支持对应包管理器，也会尝试自动安装缺失工具。
+这些启动文件会先检查 Pandoc 是否已安装，以及版本是否至少为 `3.10`。
+如果未安装，会引导安装。
+如果版本过低，会引导更新。
+安装或更新完成后，需要重新运行一次启动器，让新版本被正确识别。
+
+macOS 用户如果第一次运行被系统拦截：
+
+1. 先在 Finder 里右键 `markdown2cheatsheet.command` 并选择“打开”
+2. 如果仍被拦截，到“系统设置 > 隐私与安全性”里找到对应提示并放行
+3. 放行后重新运行启动器
 
 手动启动图形界面：
 
@@ -151,6 +163,15 @@ python3 md2cheatsheet.py --list-templates
 3. 设置纸张为 `A4`，方向为 `Landscape` 或“横向”，边距为 `Minimum` 或“最小”。
 4. 取消勾选页眉页脚。
 5. 保存为 PDF。
+
+## 常见故障
+
+- macOS 双击 `markdown2cheatsheet.command` 被拦截：先右键打开；如果仍失败，到“系统设置 > 隐私与安全性”里放行
+- 安装或更新 Pandoc 后仍提示版本不对：关闭当前窗口后重新运行启动器
+- 浏览器没有自动打开：手动访问 `http://127.0.0.1:8765`
+- 启动后提示端口占用：先关闭之前未退出的 markdown2cheatsheet 进程，再重新启动
+
+更完整的故障排除说明见 [使用手册](USAGE_CN.md)。
 
 ## 面向开发者
 
