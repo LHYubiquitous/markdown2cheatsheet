@@ -7,6 +7,21 @@ Convert Markdown notes into compact, print-ready cheatsheets with selectable lay
 [中文使用手册](docs/USAGE_CN.md)  
 [Developer Guide](docs/DEVELOPMENT.md)
 
+## Table of Contents
+
+- [Preview](#preview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Environment Setup](#environment-setup)
+- [How It Works](#how-it-works)
+- [Quick Start](#quick-start)
+- [CLI Usage](#cli-usage)
+- [Template Options](#template-options)
+- [Export to PDF](#export-to-pdf)
+- [Common Issues](#common-issues)
+- [For Developers](#for-developers)
+- [License](#license)
+
 ## Preview
 
 ![Output preview](outputview.jpg)

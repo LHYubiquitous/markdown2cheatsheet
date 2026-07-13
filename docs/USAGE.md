@@ -4,6 +4,27 @@ This guide is for end users. It explains how to start the app, how to handle sec
 
 [Back to README](../README.md)
 
+## Table of Contents
+
+- [1. Before You Start](#1-before-you-start)
+- [2. Recommended Way To Start](#2-recommended-way-to-start)
+- [3. macOS Notes](#3-macos-notes)
+- [4. Windows Notes](#4-windows-notes)
+- [5. Linux Notes](#5-linux-notes)
+- [6. Basic GUI Workflow](#6-basic-gui-workflow)
+- [7. Export To PDF](#7-export-to-pdf)
+- [8. Troubleshooting](#8-troubleshooting)
+- [9. Manual Start](#9-manual-start)
+
+Common troubleshooting shortcuts:
+
+- [The first run is blocked by macOS](#the-first-run-is-blocked-by-macos)
+- [The browser does not open automatically](#the-browser-does-not-open-automatically)
+- [Pandoc is not installed](#pandoc-is-not-installed)
+- [Pandoc version is too old](#pandoc-version-is-too-old)
+- [The port is already in use](#the-port-is-already-in-use)
+- [The app says "cannot execute binary file" on Linux](#the-app-says-cannot-execute-binary-file-on-linux)
+
 ## 1. Before You Start
 
 You need these two things:
