@@ -77,6 +77,11 @@ Linux 启动器支持：
 - Fedora：使用 `dnf` 安装 Python 和 Pandoc
 - Arch/Manjaro：使用 `pacman` 安装 `python` 和 `pandoc-cli`
 
+请选择和 CPU 架构匹配的 Linux 发布包：
+
+- `x86_64` 或 `amd64`：使用 `linux-x64` 发布包
+- `aarch64` 或 `arm64`：使用 `linux-arm64` 发布包
+
 部分发行版仓库可能只提供低于 `3.1.3` 的 Pandoc。遇到这种情况时，需要手动安装更新版本的 Pandoc，然后重新运行启动器。
 
 macOS 用户如果第一次运行被系统拦截：
