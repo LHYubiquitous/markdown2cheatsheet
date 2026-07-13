@@ -37,17 +37,44 @@ install_python() {
   if command_exists apt-get; then
     if confirm_install "Python 3 is not installed. Install it with apt now?"; then
       sudo apt-get update && sudo apt-get install -y python3
-      return $?
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      if command_exists python3; then
+        return 0
+      fi
+      echo "Python 3 was installed, but the current terminal cannot find it yet."
+      echo "Please close this window and run $LAUNCHER_NAME again."
+      return 1
     fi
   elif command_exists dnf; then
     if confirm_install "Python 3 is not installed. Install it with dnf now?"; then
       sudo dnf install -y python3
-      return $?
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      if command_exists python3; then
+        return 0
+      fi
+      echo "Python 3 was installed, but the current terminal cannot find it yet."
+      echo "Please close this window and run $LAUNCHER_NAME again."
+      return 1
     fi
   elif command_exists pacman; then
     if confirm_install "Python 3 is not installed. Install it with pacman now?"; then
       sudo pacman -Sy --noconfirm python
-      return $?
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      if command_exists python3; then
+        return 0
+      fi
+      echo "Python 3 was installed, but the current terminal cannot find it yet."
+      echo "Please close this window and run $LAUNCHER_NAME again."
+      return 1
     fi
   fi
   echo "Python 3 is required. Please install it and run $LAUNCHER_NAME again."

@@ -37,7 +37,16 @@ install_python() {
   if command_exists brew; then
     if confirm_install "Python 3 is not installed. Install it with Homebrew now?"; then
       brew install python
-      return $?
+      local status=$?
+      if [ $status -ne 0 ]; then
+        return $status
+      fi
+      if command_exists python3; then
+        return 0
+      fi
+      echo "Python 3 was installed, but the current terminal cannot find it yet."
+      echo "Please close this window and run $LAUNCHER_NAME again."
+      return 1
     fi
   fi
   echo "Python 3 is required. Please install it and run $LAUNCHER_NAME again."
