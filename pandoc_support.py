@@ -7,7 +7,7 @@ import re
 import subprocess
 from pathlib import Path
 
-MIN_PANDOC_VERSION = "3.10"
+MIN_PANDOC_VERSION = "3.1.3"
 
 
 def extract_version(raw_text: str) -> str | None:

@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
 LAUNCHER_NAME="markdown2cheatsheet.command"
-MIN_PANDOC_VERSION="3.10"
+MIN_PANDOC_VERSION="3.1.3"
 
 command_exists() {
   command -v "$1" >/dev/null 2>&1

@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 set "LAUNCHER_NAME=markdown2cheatsheet.bat"
-set "MIN_PANDOC_VERSION=3.10"
+set "MIN_PANDOC_VERSION=3.1.3"
 set "PYTHON_CMD="
 set "PROMPT_REPLY="
 

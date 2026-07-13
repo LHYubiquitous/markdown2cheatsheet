@@ -66,7 +66,7 @@ pandoc --version
 - Windows：`markdown2cheatsheet.bat`
 - Linux：`markdown2cheatsheet.sh`
 
-这些启动文件会先检查 Pandoc 是否已安装，以及版本是否至少为 `3.10`。
+这些启动文件会先检查 Pandoc 是否已安装，以及版本是否至少为 `3.1.3`。
 如果未安装，会引导安装。
 如果版本过低，会引导更新。
 安装或更新完成后，需要重新运行一次启动器，让新版本被正确识别。

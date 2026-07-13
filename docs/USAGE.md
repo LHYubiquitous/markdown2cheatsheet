@@ -8,7 +8,7 @@ This guide is for end users. It explains how to start the app, how to handle sec
 
 You need these two things:
 
-- Pandoc `3.10` or later
+- Pandoc `3.1.3` or later
 - Python 3
 
 If you are not sure whether Pandoc is installed, check it first:
@@ -17,7 +17,7 @@ If you are not sure whether Pandoc is installed, check it first:
 pandoc --version
 ```
 
-If the first line shows a version number and it is not lower than `3.10`, you are ready to continue.
+If the first line shows a version number and it is not lower than `3.1.3`, you are ready to continue.
 
 ## 2. Recommended Way To Start
 
@@ -63,7 +63,7 @@ If the zip was downloaded from the internet, macOS may also block it because of 
 Common reasons:
 
 - Pandoc is not installed
-- Pandoc is lower than `3.10`
+- Pandoc is lower than `3.1.3`
 - Python 3 is not available
 - macOS security has not allowed the launcher yet
 
@@ -158,7 +158,7 @@ If the command does not exist, install Pandoc first.
 
 ### Pandoc version is too old
 
-This project requires Pandoc `3.10` or later.
+This project requires Pandoc `3.1.3` or later.
 
 Check your current version:
 

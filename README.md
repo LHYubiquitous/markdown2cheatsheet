@@ -67,7 +67,7 @@ Double-click launchers included in the repository:
 - Windows: `markdown2cheatsheet.bat`
 - Linux: `markdown2cheatsheet.sh`
 
-These launchers first check whether Pandoc is installed and whether its version is at least `3.10`.
+These launchers first check whether Pandoc is installed and whether its version is at least `3.1.3`.
 If Pandoc is missing, they can guide installation.
 If Pandoc is too old, they can guide an update.
 After installing or updating Pandoc, relaunch the launcher once so the new version can be detected correctly.
