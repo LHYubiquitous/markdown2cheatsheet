@@ -222,6 +222,21 @@ http://127.0.0.1:8765
 1. 关闭之前已经启动但未退出的 markdown2cheatsheet 进程
 2. 再重新启动一次
 
+### Linux 提示 cannot execute binary file
+
+这通常说明下载的发布包和当前虚拟机 CPU 架构不匹配。例如 `linux-x64` 发布包不能在 ARM64 Ubuntu 虚拟机里直接运行。
+
+先检查当前系统架构：
+
+```bash
+uname -m
+```
+
+选择匹配的发布包：
+
+- `x86_64` 或 `amd64`：使用 `linux-x64`
+- `aarch64` 或 `arm64`：使用 `linux-arm64`
+
 ### 用完以后怎么关闭
 
 如果你是通过启动器打开的，本地服务通常会在终端窗口中保持运行。

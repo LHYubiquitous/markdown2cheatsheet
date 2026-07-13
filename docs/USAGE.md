@@ -222,6 +222,21 @@ The simplest fix is:
 1. Close any older markdown2cheatsheet process that is still running
 2. Start it again
 
+### The app says "cannot execute binary file" on Linux
+
+This usually means the release archive does not match your CPU architecture. For example, a `linux-x64` archive will not run inside an ARM64 Ubuntu virtual machine.
+
+Check your system architecture:
+
+```bash
+uname -m
+```
+
+Use the matching archive:
+
+- `x86_64` or `amd64`: use `linux-x64`
+- `aarch64` or `arm64`: use `linux-arm64`
+
 ### How to stop it when you are done
 
 If you started it from a launcher, the local service usually keeps running in the Terminal window.

@@ -251,6 +251,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$SCRIPT_DIR/Markdown2CheatsheetGUI"
 LAUNCHER_NAME="markdown2cheatsheet.sh"
 MIN_PANDOC_VERSION="{MIN_PANDOC_VERSION}"
+BUILT_ARCH="{normalized_arch()}"
 
 command_exists() {{
   command -v "$1" >/dev/null 2>&1
@@ -287,6 +288,53 @@ compare_versions() {{
 
 pandoc_version() {{
   "$1" --version 2>/dev/null | awk 'NR == 1 {{ for (i = 1; i <= NF; i++) if ($i ~ /^[0-9]+(\\.[0-9]+)+$/) {{ print $i; exit }} }}'
+}}
+
+validate_pandoc_after_install() {{
+  local verb="$1"
+  if ! command_exists pandoc; then
+    echo "Pandoc was $verb, but the current terminal cannot find it yet."
+    echo "Please close this window and run $LAUNCHER_NAME again."
+    return 0
+  fi
+
+  local installed_version
+  installed_version="$(pandoc_version pandoc)"
+  if [ -z "$installed_version" ]; then
+    echo "Pandoc was $verb, but its version could not be detected."
+    echo "Please close this window and run $LAUNCHER_NAME again."
+    return 0
+  fi
+
+  if compare_versions "$installed_version" "$MIN_PANDOC_VERSION"; then
+    echo "Pandoc $installed_version was $verb successfully."
+    return 0
+  fi
+
+  echo "Pandoc $installed_version was $verb from your Linux package manager, but markdown2cheatsheet requires $MIN_PANDOC_VERSION or later."
+  echo "Your distribution repository may not provide a new enough Pandoc package. Please install a newer Pandoc release manually, then run $LAUNCHER_NAME again."
+  return 1
+}}
+
+runtime_arch() {{
+  local machine
+  machine="$(uname -m 2>/dev/null || echo unknown)"
+  case "$machine" in
+    x86_64|amd64) echo "x64" ;;
+    aarch64|arm64) echo "arm64" ;;
+    *) echo "$machine" ;;
+  esac
+}}
+
+ensure_compatible_arch() {{
+  local current_arch
+  current_arch="$(runtime_arch)"
+  if [ "$current_arch" != "$BUILT_ARCH" ]; then
+    echo "This release was built for Linux $BUILT_ARCH, but this system is Linux $current_arch."
+    echo "Please download a matching Linux $current_arch release, or run this archive on a Linux $BUILT_ARCH system."
+    return 1
+  fi
+  return 0
 }}
 
 install_or_update_pandoc() {{
@@ -367,6 +415,7 @@ ensure_pandoc() {{
   return 0
 }}
 
+ensure_compatible_arch || exit 1
 ensure_pandoc || exit 1
 
 chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
@@ -527,6 +576,7 @@ def release_readme() -> str:
             "Markdown2Cheatsheet GUI",
             "",
             f"Version: {version}",
+            f"Platform: {platform_name}-{normalized_arch()}",
             "",
             f"Start: {start_name}",
             "",
