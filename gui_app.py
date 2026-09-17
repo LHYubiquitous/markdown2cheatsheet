@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import tempfile
 import webbrowser
 from http import HTTPStatus
@@ -29,6 +30,69 @@ ROOT_DIR = get_app_root()
 GUI_DIR = ROOT_DIR / "gui"
 ASSETS_DIR = ROOT_DIR / "assets"
 DEFAULT_EXAMPLE = ROOT_DIR / "examples" / "test_cheatsheet.md"
+SKIPPED_SEARCH_DIRECTORIES = {
+    ".git",
+    ".hg",
+    ".svn",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "node_modules",
+    "release",
+    "venv",
+}
+
+
+def resolve_source_directory(filename: str, project_root: str | Path) -> tuple[Path, str | None]:
+    """Find an imported basename under the trusted root without guessing ambiguities."""
+    root = Path(project_root).expanduser().resolve()
+    safe_name = Path(filename).name
+    if not safe_name:
+        return root, "Imported Markdown filename is missing; using the project root for resources."
+
+    matches = []
+    for current, directories, filenames in os.walk(root, onerror=lambda _error: None):
+        directories[:] = [
+            name
+            for name in directories
+            if name not in SKIPPED_SEARCH_DIRECTORIES
+            and not name.startswith("markdown2cheatsheet-gui-")
+        ]
+        if safe_name not in filenames:
+            continue
+        resolved = (Path(current) / safe_name).resolve()
+        if not resolved.is_file() or not _is_within_root(resolved, root):
+            continue
+        matches.append(resolved)
+        if len(matches) > 1:
+            break
+
+    if len(matches) == 1:
+        return matches[0].parent, None
+    if not matches:
+        return root, f"Imported Markdown file '{safe_name}' was not found; using the project root for resources."
+    return root, f"Multiple files named '{safe_name}' were found; using the project root for resources."
+
+
+def _is_within_root(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+class GuiServer(ThreadingHTTPServer):
+    project_root: Path
+    source_directory_cache: dict[str, tuple[Path, str | None]]
+
+
+def create_server(host: str, port: int, project_root: str | Path) -> GuiServer:
+    server = GuiServer((host, port), GuiHandler)
+    server.project_root = Path(project_root).expanduser().resolve()
+    server.source_directory_cache = {}
+    return server
 
 
 class GuiHandler(BaseHTTPRequestHandler):
@@ -74,6 +138,14 @@ class GuiHandler(BaseHTTPRequestHandler):
             code_font = payload.get("codeFont", DEFAULT_CODE_FONT)
             font_size = payload.get("fontSize", DEFAULT_FONT_SIZE)
             line_height = payload.get("lineHeight", DEFAULT_LINE_HEIGHT)
+            source_filename = payload.get("filename", "")
+            cache_key = Path(source_filename).name
+            if cache_key not in self.server.source_directory_cache:
+                self.server.source_directory_cache[cache_key] = resolve_source_directory(
+                    source_filename,
+                    self.server.project_root,
+                )
+            source_directory, resource_warning = self.server.source_directory_cache[cache_key]
         except Exception as exc:  # noqa: BLE001
             self._send_json({"error": f"Invalid request: {exc}"}, status=HTTPStatus.BAD_REQUEST)
             return
@@ -104,18 +176,21 @@ class GuiHandler(BaseHTTPRequestHandler):
                     code_font=code_font,
                     font_size=font_size,
                     line_height=line_height,
+                    resource_paths=[source_directory, self.server.project_root],
+                    allowed_resource_root=self.server.project_root,
                 )
                 html = result.read_text(encoding="utf-8")
         except Exception as exc:  # noqa: BLE001
             self._send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
             return
 
-        self._send_json(
-            {
-                "html": html,
-                "outputName": f"{stem}.html",
-            }
-        )
+        response = {
+            "html": html,
+            "outputName": f"{stem}.html",
+        }
+        if resource_warning:
+            response["warning"] = resource_warning
+        self._send_json(response)
 
     def log_message(self, format: str, *args) -> None:  # noqa: A003
         return
@@ -174,6 +249,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind the local server")
     parser.add_argument("--port", type=int, default=8765, help="Port to bind the local server")
     parser.add_argument(
+        "--project-root",
+        default=str(ROOT_DIR),
+        help="Trusted directory used to resolve local Markdown image resources",
+    )
+    parser.add_argument(
         "--no-browser",
         action="store_true",
         help="Start the server without opening a browser automatically",
@@ -181,8 +261,13 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run_server(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = True) -> None:
-    server = ThreadingHTTPServer((host, port), GuiHandler)
+def run_server(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    open_browser: bool = True,
+    project_root: str | Path = ROOT_DIR,
+) -> None:
+    server = create_server(host, port, project_root)
     url = f"http://{host}:{port}"
     print(f"GUI running at {url}")
     if open_browser:
@@ -197,4 +282,9 @@ def run_server(host: str = "127.0.0.1", port: int = 8765, open_browser: bool = T
 
 if __name__ == "__main__":
     args = build_parser().parse_args()
-    run_server(host=args.host, port=args.port, open_browser=not args.no_browser)
+    run_server(
+        host=args.host,
+        port=args.port,
+        open_browser=not args.no_browser,
+        project_root=args.project_root,
+    )

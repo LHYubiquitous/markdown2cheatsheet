@@ -19,6 +19,7 @@ const previewFrame = document.getElementById("previewFrame");
 let templateMeta = null;
 let latestBlobUrl = null;
 let latestOutputName = "cheatsheet.html";
+let selectedSourceFilename = null;
 
 function normalizeOutputName(value) {
   const trimmed = value.trim();
@@ -117,6 +118,7 @@ async function readLocalFile(file) {
   const text = await file.text();
   markdownInput.value = text;
   filenameInput.value = file.name.replace(/\.[^.]+$/, "") || "cheatsheet";
+  selectedSourceFilename = file.name;
   filePickerLabel.textContent = file.name;
   setStatus(`Loaded ${file.name}`);
 }
@@ -139,7 +141,7 @@ async function generatePreview() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        filename: filenameInput.value.trim() || "cheatsheet.md",
+        filename: selectedSourceFilename || `${normalizeOutputName(filenameInput.value)}.md`,
         outputName: `${normalizeOutputName(filenameInput.value)}.html`,
         markdown: markdownInput.value,
         columns: Number(columnsSelect.value),
@@ -164,7 +166,7 @@ async function generatePreview() {
     );
     previewFrame.src = latestBlobUrl;
     downloadBtn.disabled = false;
-    setStatus(`Generated: ${latestOutputName}`);
+    setStatus(data.warning ? `Generated: ${latestOutputName}. ${data.warning}` : `Generated: ${latestOutputName}`);
   } catch (error) {
     setStatus(error.message || "Generation failed.", true);
   } finally {

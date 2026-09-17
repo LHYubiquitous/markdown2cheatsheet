@@ -32,6 +32,7 @@
 - 通过 Pandoc 生成自包含 HTML
 - 提供本地图形界面，可导入 Markdown、预览结果并下载 HTML
 - 命令行和图形界面共用同一套转换核心
+- Markdown 与原生 HTML 中的本地图片会嵌入独立 HTML
 
 ## 依赖
 

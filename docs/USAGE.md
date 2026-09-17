@@ -181,6 +181,24 @@ Typical workflow:
 5. Preview the result on the right
 6. Click `Download HTML` to save the output
 
+### Local images
+
+Relative image paths are supported for imported Markdown files, including Markdown image syntax and raw HTML `<img>` tags. Images are embedded into the generated HTML, so both the preview and downloaded file remain self-contained.
+
+For a packaged GUI, keep the extracted application folder inside the project that contains the Markdown and images:
+
+```text
+my-project/
+├── notes.md
+├── assets/
+│   └── diagram.png
+└── markdown2cheatsheet-gui-v.../
+```
+
+Paths such as `assets/diagram.png` and paths relative to nested Markdown files are both resolved. The GUI locates the original Markdown file by filename under the project root. If the file cannot be found, or two files share the same name, the GUI shows a warning and falls back to the project root. Use unique Markdown filenames when working with nested folders.
+
+Remote `https://` images continue to work through Pandoc. For safety, the GUI does not read local images outside the project root, including paths that escape through `..` or symbolic links.
+
 ## 7. Export To PDF
 
 After generating the HTML, you can export it to PDF:

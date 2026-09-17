@@ -236,7 +236,7 @@ chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
 
 cd "$APP_DIR" || exit 1
 echo "When you are finished, return to this window and press Ctrl+C to stop the local service."
-./Markdown2CheatsheetGUI
+./Markdown2CheatsheetGUI --project-root "$SCRIPT_DIR/.."
 status=$?
 echo
 echo "markdown2cheatsheet has stopped. You can close this window now."
@@ -422,7 +422,7 @@ chmod +x "$APP_DIR/Markdown2CheatsheetGUI" >/dev/null 2>&1 || true
 
 cd "$APP_DIR" || exit 1
 echo "When you are finished, return to this window and press Ctrl+C to stop the local service."
-./Markdown2CheatsheetGUI
+./Markdown2CheatsheetGUI --project-root "$SCRIPT_DIR/.."
 status=$?
 echo
 echo "markdown2cheatsheet has stopped. You can close this window now."
@@ -444,7 +444,7 @@ call :ensure_powershell || goto :fail
 call :ensure_pandoc || goto :fail
 
 echo When you are finished, return to this window and press Ctrl+C to stop the local service.
-"%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe"
+"%~dp0Markdown2CheatsheetGUI\\Markdown2CheatsheetGUI.exe" --project-root "%~dp0.."
 if errorlevel 1 goto :fail_runtime
 
 echo.

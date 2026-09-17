@@ -192,7 +192,7 @@ fi
 ensure_pandoc || exit 1
 
 echo "When you are finished, return to this window and press Ctrl+C to stop the local service."
-python3 gui_app.py
+python3 gui_app.py --project-root "$SCRIPT_DIR"
 status=$?
 echo
 echo "markdown2cheatsheet has stopped. You can close this window now."

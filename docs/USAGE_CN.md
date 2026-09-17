@@ -181,6 +181,24 @@ pandoc --version
 5. 在右侧预览结果
 6. 点击 `Download HTML` 保存输出
 
+### 本地图片
+
+导入 Markdown 文件时支持相对图片路径，包括 Markdown 图片语法和原生 HTML `<img>` 标签。图片会直接嵌入生成的 HTML，因此右侧预览和下载后的文件都是完整、可独立打开的。
+
+使用打包版 GUI 时，请把解压后的应用文件夹放在包含 Markdown 与图片的项目目录中：
+
+```text
+我的项目/
+├── notes.md
+├── assets/
+│   └── diagram.png
+└── markdown2cheatsheet-gui-v.../
+```
+
+工具既能解析 `assets/diagram.png`，也能解析嵌套 Markdown 文件的相对路径。GUI 会在项目根目录下按文件名定位原 Markdown 文件；如果找不到，或存在两个同名文件，界面会提示警告并退回项目根目录。使用嵌套目录时，建议让 Markdown 文件名保持唯一。
+
+远程 `https://` 图片仍由 Pandoc 正常处理。为保障安全，GUI 不会读取项目根目录之外的本地图片，包括通过 `..` 或符号链接越界的路径。
+
 ## 7. 导出 PDF
 
 生成 HTML 后，可以再导出成 PDF：

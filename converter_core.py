@@ -7,7 +7,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterable
+from html.parser import HTMLParser
+import json
+import os
 from pathlib import Path
+import re
+from urllib.parse import unquote, urlsplit
+from urllib.request import url2pathname
 
 from pandoc_support import MIN_PANDOC_VERSION, detect_pandoc_version, is_version_at_least
 from postprocess import process
@@ -26,6 +33,214 @@ from template_presets import (
 
 ROOT_DIR = get_app_root()
 BASE_CSS = ROOT_DIR / "cheatsheet.css"
+PANDOC_MARKDOWN_FORMAT = "markdown+mark+smart+pipe_tables+fenced_code_blocks"
+
+
+_CSS_URL_PATTERN = re.compile(
+    r"url\(\s*(?:(['\"])(.*?)\1|([^)'\"]+))\s*\)",
+    flags=re.IGNORECASE,
+)
+_CSS_IMPORT_PATTERN = re.compile(
+    r"@import\s+(?:\"([^\"]+)\"|'([^']+)')",
+    flags=re.IGNORECASE,
+)
+_CSS_COMMENT_PATTERN = re.compile(r"/\*.*?\*/", flags=re.DOTALL)
+_RESOURCE_ATTRIBUTES = {"data", "poster", "src"}
+_RESOURCE_HREF_TAGS = {"image", "link", "use"}
+
+
+def _css_resource_targets(css: str) -> list[tuple[str, bool]]:
+    uncommented = _CSS_COMMENT_PATTERN.sub("", css)
+    targets = [
+        ((match.group(2) if match.group(1) else match.group(3)).strip(), False)
+        for match in _CSS_URL_PATTERN.finditer(uncommented)
+    ]
+    targets.extend(
+        ((match.group(1) or match.group(2)).strip(), True)
+        for match in _CSS_IMPORT_PATTERN.finditer(uncommented)
+    )
+    return targets
+
+
+def _srcset_targets(value: str) -> list[str]:
+    if value.lstrip().lower().startswith("data:"):
+        return []
+    return [candidate.strip().split(maxsplit=1)[0] for candidate in value.split(",") if candidate.strip()]
+
+
+class _EmbeddedResourceParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.sources: list[tuple[str, bool]] = []
+        self._style_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized_tag = tag.lower()
+        normalized_attrs = {
+            name.lower(): value
+            for name, value in attrs
+            if value is not None
+        }
+        is_stylesheet_link = (
+            normalized_tag == "link"
+            and "stylesheet" in normalized_attrs.get("rel", "").lower().split()
+        )
+        if normalized_tag == "style":
+            self._style_depth += 1
+        for name, value in attrs:
+            if not value:
+                continue
+            normalized_name = name.lower()
+            if normalized_name in _RESOURCE_ATTRIBUTES or (
+                normalized_name == "href" and normalized_tag in _RESOURCE_HREF_TAGS
+            ):
+                self.sources.append((value, is_stylesheet_link and normalized_name == "href"))
+            elif normalized_name == "srcset":
+                self.sources.extend((target, False) for target in _srcset_targets(value))
+            elif normalized_name == "style":
+                self.sources.extend(_css_resource_targets(value))
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "style" and self._style_depth:
+            self._style_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self._style_depth:
+            self.sources.extend(_css_resource_targets(data))
+
+
+def _pandoc_resource_targets(pandoc: str, input_file: Path) -> list[tuple[str, bool]]:
+    """Return resources Pandoc may embed from Markdown and raw HTML."""
+    command = [
+        pandoc,
+        str(input_file),
+        "--from",
+        PANDOC_MARKDOWN_FORMAT,
+        "--to",
+        "json",
+    ]
+    try:
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.strip() or exc.stdout.strip() or "Pandoc resource validation failed."
+        raise RuntimeError(stderr) from exc
+
+    document = json.loads(result.stdout)
+    targets: list[tuple[str, bool]] = []
+
+    def visit(node) -> None:
+        if isinstance(node, list):
+            for child in node:
+                visit(child)
+            return
+        if not isinstance(node, dict):
+            return
+
+        node_type = node.get("t")
+        content = node.get("c")
+        if node_type == "Image" and isinstance(content, list) and len(content) >= 3:
+            target = content[2]
+            if isinstance(target, list) and target:
+                targets.append((target[0], False))
+        elif (
+            node_type in {"RawInline", "RawBlock"}
+            and isinstance(content, list)
+            and len(content) >= 2
+            and content[0] == "html"
+        ):
+            parser = _EmbeddedResourceParser()
+            parser.feed(content[1])
+            targets.extend(parser.sources)
+
+        for child in node.values():
+            visit(child)
+
+    visit(document)
+    return targets
+
+
+def _local_resource_path(target: str) -> Path | None:
+    """Translate a local resource target to a path and ignore remote/data URLs."""
+    if not target or target.startswith(("#", "//")):
+        return None
+
+    direct_path = Path(unquote(target))
+    if direct_path.is_absolute():
+        return direct_path
+
+    parsed = urlsplit(target)
+    if parsed.scheme and parsed.scheme != "file":
+        return None
+    if parsed.scheme == "file":
+        return Path(url2pathname(parsed.path))
+    return Path(unquote(parsed.path))
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def validate_embedded_resources(
+    pandoc: str,
+    input_file: Path,
+    resource_directories: list[Path],
+    allowed_root: str | Path,
+) -> None:
+    """Reject local embedded resources outside the GUI's trusted root."""
+    root = Path(allowed_root).expanduser().resolve()
+    for directory in resource_directories:
+        if not _is_within(directory, root):
+            raise ValueError(f"Resource directory is outside the project root: {directory}")
+
+    active_stylesheets: set[Path] = set()
+    validated_stylesheets: set[Path] = set()
+
+    def validate_target(
+        target: str,
+        search_directories: list[Path],
+        is_stylesheet: bool,
+    ) -> None:
+        local_path = _local_resource_path(target)
+        if local_path is None:
+            return
+
+        candidates = (
+            [local_path.resolve()]
+            if local_path.is_absolute()
+            else [(directory / local_path).resolve() for directory in search_directories]
+        )
+        selected = next((candidate for candidate in candidates if candidate.exists()), None)
+        if selected is not None and not _is_within(selected, root):
+            raise ValueError(f"Embedded resource is outside the project root: {target}")
+        if (
+            selected is None
+            or not (is_stylesheet or selected.suffix.lower() == ".css")
+        ):
+            return
+        if selected in active_stylesheets:
+            raise ValueError(f"Circular stylesheet import detected: {target}")
+        if selected in validated_stylesheets:
+            return
+
+        active_stylesheets.add(selected)
+        try:
+            css = selected.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            active_stylesheets.remove(selected)
+            return
+        try:
+            for dependency, dependency_is_stylesheet in _css_resource_targets(css):
+                validate_target(dependency, [selected.parent], dependency_is_stylesheet)
+        finally:
+            active_stylesheets.remove(selected)
+        validated_stylesheets.add(selected)
+
+    for target, is_stylesheet in _pandoc_resource_targets(pandoc, input_file):
+        validate_target(target, resource_directories, is_stylesheet)
 
 
 def ensure_pandoc() -> str:
@@ -136,6 +351,8 @@ def convert_markdown(
     font_size: str = DEFAULT_FONT_SIZE,
     line_height: str = DEFAULT_LINE_HEIGHT,
     title: str | None = None,
+    resource_paths: Iterable[str | Path] | None = None,
+    allowed_resource_root: str | Path | None = None,
 ) -> Path:
     """Convert a markdown file into a standalone cheatsheet HTML file."""
     pandoc = ensure_pandoc()
@@ -161,6 +378,20 @@ def convert_markdown(
         font_size,
         line_height,
     )
+    configured_resources = list(resource_paths) if resource_paths is not None else [input_file.parent]
+    resource_directories: list[Path] = []
+    for directory in configured_resources:
+        resolved = Path(directory).expanduser().resolve()
+        if resolved not in resource_directories:
+            resource_directories.append(resolved)
+
+    if allowed_resource_root is not None:
+        validate_embedded_resources(
+            pandoc,
+            input_file,
+            resource_directories,
+            allowed_resource_root,
+        )
 
     with tempfile.TemporaryDirectory(prefix="md2cheatsheet_") as tmpdir:
         tmp_dir = Path(tmpdir)
@@ -172,7 +403,7 @@ def convert_markdown(
             pandoc,
             str(input_file),
             "--from",
-            "markdown+mark+smart+pipe_tables+fenced_code_blocks",
+            PANDOC_MARKDOWN_FORMAT,
             "--to",
             "html5",
             "--standalone",
@@ -187,6 +418,8 @@ def convert_markdown(
             "pygments",
             "--output",
             str(raw_html),
+            "--resource-path",
+            os.pathsep.join(str(directory) for directory in resource_directories),
         ]
 
         try:
