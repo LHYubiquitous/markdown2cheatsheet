@@ -120,7 +120,13 @@ def _pandoc_resource_targets(pandoc: str, input_file: Path) -> list[tuple[str, b
         "json",
     ]
     try:
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
+        result = subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
     except subprocess.CalledProcessError as exc:
         stderr = exc.stderr.strip() or exc.stdout.strip() or "Pandoc resource validation failed."
         raise RuntimeError(stderr) from exc
@@ -423,7 +429,13 @@ def convert_markdown(
         ]
 
         try:
-            subprocess.run(command, check=True, capture_output=True, text=True)
+            subprocess.run(
+                command,
+                check=True,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+            )
         except subprocess.CalledProcessError as exc:
             stderr = exc.stderr.strip() or exc.stdout.strip() or "Pandoc conversion failed."
             raise RuntimeError(stderr) from exc
