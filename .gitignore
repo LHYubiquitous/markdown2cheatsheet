@@ -5,6 +5,7 @@ tmp_raw.html
 # Local conversion outputs
 *_cheatsheet.html
 *_cheatsheet.pdf
+output/
 
 # System/editor files
 .DS_Store

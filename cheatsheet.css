@@ -1,5 +1,5 @@
 /* ============================================================
-   cheatsheet.css — A4 landscape 4-column high-density print style
+   cheatsheet.css — A4 landscape readable 3-column print style
    Usage: pandoc note.md --standalone --embed-resources --css cheatsheet.css -o note.html
    Print: Browser Ctrl+P → Landscape → Margins: Minimum → Save as PDF
    ============================================================ */
@@ -21,26 +21,26 @@
 }
 
 :root {
-  --columns: 4;
-  --column-gap: 2.5mm;
+  --columns: 3;
+  --column-gap: 3mm;
   --column-rule-color: #ccc;
-  --base-font-size: 6pt;
-  --body-line-height: 1.0;
-  --code-line-height: 0.9;
+  --base-font-size: 8pt;
+  --body-line-height: 1.2;
+  --code-line-height: 1.1;
   --text-color: #111;
   --body-bg: #fff;
   --body-font: 'Arial', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', 'PingFang SC', sans-serif;
   --em-font: 'Arial', 'Helvetica Neue', Helvetica, 'Microsoft YaHei', 'PingFang SC', sans-serif;
   --code-font: Consolas, Menlo, Monaco, 'Courier New', monospace;
-  --h1-font-size: 6.5pt;
-  --h2-font-size: 6pt;
-  --h3-font-size: 5.5pt;
-  --h4-font-size: 5pt;
-  --h5-font-size: 5pt;
-  --inline-code-font-size: 4pt;
-  --pre-font-size: 3.8pt;
-  --table-font-size: 4.8pt;
-  --figcaption-font-size: 4pt;
+  --h1-font-size: 8.5pt;
+  --h2-font-size: 8pt;
+  --h3-font-size: 7.5pt;
+  --h4-font-size: 7pt;
+  --h5-font-size: 7pt;
+  --inline-code-font-size: 6pt;
+  --pre-font-size: 5.8pt;
+  --table-font-size: 7.2pt;
+  --figcaption-font-size: 6pt;
   --h1-color: #000;
   --h2-color: #09305a;
   --h2-bg: #cfe0f5;
@@ -90,6 +90,7 @@ body {
   column-gap: var(--column-gap);
   column-rule: 0.3pt solid var(--column-rule-color);
   column-fill: balance;
+  text-align: left;
   orphans: 2;
   widows: 2;
 }
@@ -157,16 +158,26 @@ h5, h6 {
 /* ── Paragraphs ── */
 p {
   margin: 0 0 1pt 0;
-  text-align: justify;
   hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+/* Keep prose ragged-right: justified text creates distracting word spacing
+   in narrow columns, especially when English, Chinese, code, and math mix. */
+p,
+li,
+blockquote,
+th,
+td {
+  text-align: left;
+  text-justify: auto;
 }
 
 /* ── Lists ── */
-/* Custom bullet via ::before for tight bullet-text spacing (no tab-like gap) */
 ul {
-  list-style: none;
+  list-style: disc outside;
   margin: 0 0 1pt 0;
-  padding-left: 5pt;
+  padding-left: 7pt;
 }
 
 ol {
@@ -177,16 +188,13 @@ ol {
 li {
   margin: 0;
   line-height: var(--body-line-height);
+  break-inside: avoid;
+  overflow-wrap: anywhere;
 }
 
-ul > li {
-  /* Negative first-line indent: bullet sits at column edge, text wraps at 5pt */
-  text-indent: -5pt;
-}
-
-ul > li::before {
-  content: "\2022\00a0"; /* bullet • followed by non-breaking space */
+li::marker {
   color: var(--bullet-color);
+  font-size: 0.85em;
 }
 
 li > p {
@@ -195,7 +203,8 @@ li > p {
 
 li ul {
   margin: 0;
-  padding-left: 5pt;
+  padding-left: 7pt;
+  list-style-type: circle;
 }
 
 li ol {
@@ -271,15 +280,24 @@ pre .co { color: #008000; font-style: italic; }
 pre .op { color: #555; }
 
 /* ── Tables ── */
+.table-wrapper {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 1pt 0;
+  break-inside: avoid;
+  overflow: visible;
+}
+
 table {
   border-collapse: collapse;
-  width: auto;
+  width: 100%;
   max-width: 100%;
   font-size: var(--table-font-size);
-  margin: 0 0 1pt 0;
-  break-inside: auto;     /* Allow table to break across columns; rows are kept intact below */
-  table-layout: auto;     /* Column widths determined by content, not fixed equal split */
-  word-break: break-word;
+  margin: 0;
+  break-inside: avoid;
+  table-layout: fixed;
+  overflow-wrap: anywhere;
 }
 
 thead {
@@ -288,29 +306,162 @@ thead {
 
 tr {
   break-inside: avoid;    /* Never cut a row in half across a column break */
+  break-after: auto;
 }
 
 th {
   background: var(--table-head-bg);
   color: var(--table-head-color);
   font-weight: 700;
-  padding: 0.5pt 2pt;
-  text-align: left;
+  padding: 1pt 2.5pt;
   border: 0.3pt solid var(--table-border);
   font-size: var(--table-font-size);
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 td {
-  padding: 0.3pt 2pt;
+  padding: 1.2pt 2.5pt;
   border: 0.3pt solid var(--table-border);
   vertical-align: top;
   line-height: var(--body-line-height);
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 tr:nth-child(even) td {
   background: var(--table-stripe-bg);
+}
+
+/* Narrow columns use labelled row cards instead of unreadably thin cells. */
+.table-wrapper.table-cards table,
+.table-wrapper.table-cards tbody,
+.table-wrapper.table-cards tr,
+.table-wrapper.table-cards td {
+  display: block;
+  width: 100%;
+}
+
+.table-wrapper.table-cards colgroup,
+.table-wrapper.table-cards thead {
+  display: none;
+}
+
+.table-wrapper.table-cards tr {
+  margin: 0 0 2pt 0;
+  border: 0.3pt solid var(--table-border);
+  background: var(--body-bg);
+}
+
+.table-wrapper.table-cards td {
+  padding: 1.5pt 2.5pt;
+  border: 0;
+  border-top: 0.3pt solid var(--table-border);
+  background: transparent;
+}
+
+.table-wrapper.table-cards td:first-child {
+  border-top: 0;
+}
+
+.table-wrapper.table-cards td::before {
+  content: attr(data-label);
+  display: block;
+  margin: -1.5pt -2.5pt 1pt -2.5pt;
+  padding: 1pt 2.5pt;
+  background: var(--table-head-bg);
+  color: var(--table-head-color);
+  font-weight: 700;
+}
+
+/* ── Offline MathML ── */
+math {
+  max-width: 100%;
+  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', serif;
+}
+
+math[display="block"] {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.5pt auto 2pt auto;
+  break-inside: avoid;
+}
+
+math[display="inline"] {
+  display: inline-block;
+  vertical-align: -0.15em;
+}
+
+.math-viewport-inline {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: -0.15em;
+}
+
+.math-viewport-block {
+  display: block;
+  width: 100%;
+  margin: 1.5pt 0 2pt 0;
+  break-inside: avoid;
+}
+
+.math-viewport > math[display="block"] {
+  margin: 0 auto;
+}
+
+.math-viewport-fitted {
+  overflow: visible;
+}
+
+math.math-medium {
+  font-size: 0.96em;
+}
+
+math.math-long {
+  font-size: 0.9em;
+}
+
+math.math-xlong {
+  font-size: 0.82em;
+}
+
+math.math-inline-medium {
+  font-size: 0.96em;
+}
+
+math.math-inline-long {
+  font-size: 0.88em;
+}
+
+math.math-inline-xlong {
+  font-size: 0.78em;
+}
+
+math.math-fitted {
+  max-width: none;
+}
+
+td math,
+th math {
+  max-width: 100%;
+  font-size: 0.94em;
+  vertical-align: middle;
+}
+
+td math.math-inline-medium,
+th math.math-inline-medium {
+  font-size: 0.88em;
+}
+
+td math.math-inline-long,
+th math.math-inline-long {
+  font-size: 0.78em;
+}
+
+td math.math-inline-xlong,
+th math.math-inline-xlong {
+  font-size: 0.68em;
 }
 
 /* ── Blockquotes ── */

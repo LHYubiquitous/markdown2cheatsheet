@@ -22,7 +22,7 @@ Common troubleshooting shortcuts:
 - [The browser does not open automatically](#the-browser-does-not-open-automatically)
 - [Pandoc is not installed](#pandoc-is-not-installed)
 - [Pandoc version is too old](#pandoc-version-is-too-old)
-- [The port is already in use](#the-port-is-already-in-use)
+- [An older GUI is still open](#an-older-gui-is-still-open)
 - [The app says "cannot execute binary file" on Linux](#the-app-says-cannot-execute-binary-file-on-linux)
 
 ## 1. Before You Start
@@ -97,13 +97,13 @@ Recommended steps:
 
 ### The browser does not open automatically
 
-This usually does not mean startup failed. Open your browser manually and visit:
+This usually does not mean startup failed. The launcher prints an address such as:
 
 ```text
-http://127.0.0.1:8765
+GUI running at http://127.0.0.1:54321
 ```
 
-If the page opens, the local service is already running correctly.
+Copy the printed address into your browser. The port is selected when the GUI starts and may differ on every run.
 
 ## 4. Windows Notes
 
@@ -246,20 +246,9 @@ Try these steps in order:
 3. Reopen your terminal or file manager
 4. If needed, restart the system and try again
 
-### The port is already in use
+### An older GUI is still open
 
-The default local address is:
-
-```text
-http://127.0.0.1:8765
-```
-
-If another process is already using that port, the GUI may fail to start.
-
-The simplest fix is:
-
-1. Close any older markdown2cheatsheet process that is still running
-2. Start it again
+Each launcher run now selects a new free localhost port and opens a new browser page. This prevents an older in-memory converter from silently handling a newly started version. Close older launcher windows and browser tabs when you no longer need them.
 
 ### The app says "cannot execute binary file" on Linux
 
@@ -297,5 +286,7 @@ python3 gui_app.py
 Then open this in your browser:
 
 ```text
-http://127.0.0.1:8765
+GUI running at http://127.0.0.1:<port>
 ```
+
+Use the exact address printed in the terminal. To request a fixed port explicitly, run `python3 gui_app.py --port 8765`.

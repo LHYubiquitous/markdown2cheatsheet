@@ -33,6 +33,10 @@
 - 提供本地图形界面，可导入 Markdown、预览结果并下载 HTML
 - 命令行和图形界面共用同一套转换核心
 - Markdown 与原生 HTML 中的本地图片会嵌入独立 HTML
+- LaTeX 会转换为离线 MathML，生成文件不再依赖数学公式 CDN
+- 自动补齐标题、列表、引用和 pipe table 周围常见的缺失空行，同时保持代码块原样
+- 列表项与表格按分栏安全单元排版；表格按内容分配列宽，窄栏下自动切换为带字段名的 row cards
+- 内置离线响应式布局会按浏览器实际栏宽缩放 MathML，非默认栏数和字号组合也不会跨栏
 
 ## 依赖
 
@@ -66,11 +70,11 @@ pandoc --version
 
 转换流程如下：
 
-1. 从 GUI 或命令行读取 Markdown。
-2. 用 Pandoc 转成独立 HTML。
+1. 从 GUI 或命令行读取 Markdown，并在代码块之外保守修正常见的 block spacing 问题。
+2. 用 Pandoc 转成独立 HTML，同时把 LaTeX 转成浏览器原生 MathML。
 3. 注入基础样式和你选择的模板覆盖样式。
-4. 再做一次后处理，调整多栏布局、表格表现和代码格式。
-5. 最终得到一个自包含的 `.html` cheatsheet，可直接浏览或导出 PDF。
+4. 再做一次后处理，调整多栏断点、表格、超宽公式和代码格式。
+5. 最终得到一个可离线打开的自包含 `.html` cheatsheet，可直接浏览或导出 PDF。
 
 ## 快速开始
 
@@ -160,6 +164,8 @@ python3 md2cheatsheet.py --list-templates
 
 ## 模板选项
 
+默认采用优先保证可读性的 `3` 栏、`8pt` 字号和 `1.2` 行间距；需要容纳更多内容时仍可手动选择高密度配置。
+
 ### 分栏数
 
 - `2`
@@ -198,8 +204,8 @@ python3 md2cheatsheet.py --list-templates
 - macOS 双击 `markdown2cheatsheet.command` 被拦截：先右键打开；如果仍失败，到“系统设置 > 隐私与安全性”里放行
 - 安装或更新 Pandoc 后仍提示版本不对：关闭当前窗口后重新运行启动器
 - Debian/Fedora/Arch 的包管理器安装后版本仍过低：手动安装 Pandoc `3.1.3` 或更高版本，再重新运行启动器
-- 浏览器没有自动打开：手动访问 `http://127.0.0.1:8765`
-- 启动后提示端口占用：先关闭之前未退出的 markdown2cheatsheet 进程，再重新启动
+- 浏览器没有自动打开：复制启动器中显示的 `GUI running at http://127.0.0.1:<端口>` 地址
+- 每次运行启动器都会使用新的空闲 localhost 端口，避免旧 GUI 进程继续处理新启动器的转换请求
 
 更完整的故障排除说明见 [使用手册](USAGE_CN.md)。
 

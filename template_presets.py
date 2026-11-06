@@ -7,12 +7,12 @@ from copy import deepcopy
 
 
 DEFAULT_COLOR_TEMPLATE = "yubiquitous"
-DEFAULT_COLUMNS = 4
+DEFAULT_COLUMNS = 3
 DEFAULT_LATIN_FONT = "arial"
 DEFAULT_CJK_FONT = "microsoft-yahei"
 DEFAULT_CODE_FONT = "system-code"
-DEFAULT_FONT_SIZE = "6"
-DEFAULT_LINE_HEIGHT = "1.0"
+DEFAULT_FONT_SIZE = "8"
+DEFAULT_LINE_HEIGHT = "1.2"
 
 
 COLOR_TEMPLATES = {
@@ -333,7 +333,7 @@ def _font_size_css(base_size: float) -> dict[str, str]:
         "--h5-font-size": f"{_fmt_num(max(base_size - 1.0, 3.5))}pt",
         "--inline-code-font-size": f"{_fmt_num(max(base_size - 2.0, 3.0))}pt",
         "--pre-font-size": f"{_fmt_num(max(base_size - 2.2, 3.0))}pt",
-        "--table-font-size": f"{_fmt_num(max(base_size - 1.2, 3.6))}pt",
+        "--table-font-size": f"{_fmt_num(max(base_size - 0.8, 3.8))}pt",
         "--figcaption-font-size": f"{_fmt_num(max(base_size - 2.0, 3.0))}pt",
     }
 
