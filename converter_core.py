@@ -16,6 +16,7 @@ import re
 from urllib.parse import unquote, urlsplit
 from urllib.request import url2pathname
 
+from markdown_normalizer import normalize_markdown
 from pandoc_support import MIN_PANDOC_VERSION, detect_pandoc_version, is_version_at_least
 from postprocess import process
 from runtime_paths import get_app_root
@@ -33,7 +34,10 @@ from template_presets import (
 
 ROOT_DIR = get_app_root()
 BASE_CSS = ROOT_DIR / "cheatsheet.css"
-PANDOC_MARKDOWN_FORMAT = "markdown+mark+smart+pipe_tables+fenced_code_blocks"
+PANDOC_MARKDOWN_FORMAT = (
+    "markdown+mark+smart+pipe_tables+fenced_code_blocks"
+    "+lists_without_preceding_blankline"
+)
 
 
 _CSS_URL_PATTERN = re.compile(
@@ -113,12 +117,12 @@ def _pandoc_resource_targets(pandoc: str, input_file: Path) -> list[tuple[str, b
     """Return resources Pandoc may embed from Markdown and raw HTML."""
     command = [
         pandoc,
-        str(input_file),
         "--from",
         PANDOC_MARKDOWN_FORMAT,
         "--to",
         "json",
     ]
+    markdown = normalize_markdown(input_file.read_text(encoding="utf-8"))
     try:
         result = subprocess.run(
             command,
@@ -126,6 +130,7 @@ def _pandoc_resource_targets(pandoc: str, input_file: Path) -> list[tuple[str, b
             capture_output=True,
             text=True,
             encoding="utf-8",
+            input=markdown,
         )
     except subprocess.CalledProcessError as exc:
         stderr = exc.stderr.strip() or exc.stdout.strip() or "Pandoc resource validation failed."
@@ -402,18 +407,24 @@ def convert_markdown(
     with tempfile.TemporaryDirectory(prefix="md2cheatsheet_") as tmpdir:
         tmp_dir = Path(tmpdir)
         raw_html = tmp_dir / "raw.html"
+        normalized_markdown = tmp_dir / "normalized.md"
         override_file = tmp_dir / "template-overrides.css"
+        normalized_markdown.write_text(
+            normalize_markdown(input_file.read_text(encoding="utf-8")),
+            encoding="utf-8",
+        )
         override_file.write_text(override_css, encoding="utf-8")
 
         command = [
             pandoc,
-            str(input_file),
+            str(normalized_markdown),
             "--from",
             PANDOC_MARKDOWN_FORMAT,
             "--to",
             "html5",
             "--standalone",
             "--embed-resources",
+            "--mathml",
             "--css",
             str(css_file),
             "--css",

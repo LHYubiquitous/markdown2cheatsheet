@@ -34,6 +34,10 @@ Convert Markdown notes into compact, print-ready cheatsheets with selectable lay
 - Local GUI for importing Markdown, previewing output, and downloading HTML
 - CLI and GUI share the same conversion pipeline
 - Local Markdown and raw HTML images are embedded into standalone output
+- LaTeX is converted to offline MathML; generated files do not depend on a math CDN
+- Common note-taking shorthand is normalized, including missing blank lines around headings, lists, blockquotes, and pipe tables
+- Lists and tables are kept as column-safe units; table columns use content-aware widths and become labelled row cards in very narrow layouts
+- A self-contained responsive helper fits MathML to the browser's actual column width, including non-default column/font combinations
 
 ## Requirements
 
@@ -67,11 +71,11 @@ This project looks for Pandoc in these ways:
 
 The conversion flow is:
 
-1. Markdown is read from the GUI or CLI.
-2. Pandoc converts it into standalone HTML.
+1. Markdown is read from the GUI or CLI and conservative block-spacing fixes are applied outside code fences.
+2. Pandoc converts it into standalone HTML and turns LaTeX into browser-native MathML.
 3. The base stylesheet and selected template overrides are injected.
-4. A post-processing step adjusts layout details such as multi-column wrapping, table behavior, and code formatting.
-5. The final result is a self-contained `.html` cheatsheet that can be opened in a browser or exported to PDF.
+4. A post-processing step adjusts multi-column fragmentation, table behavior, oversized math, and code formatting.
+5. The final result is a self-contained `.html` cheatsheet that can be opened offline or exported to PDF.
 
 ## Quick Start
 
@@ -154,6 +158,8 @@ python3 md2cheatsheet.py --list-templates
 ```
 
 ## Template Options
+
+The readability-first default is `3` columns, `8pt` text, and `1.2` line height. Higher-density options remain available when fitting more content is the priority.
 
 ### Columns
 
