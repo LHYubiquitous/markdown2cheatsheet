@@ -90,6 +90,7 @@ body {
   column-gap: var(--column-gap);
   column-rule: 0.3pt solid var(--column-rule-color);
   column-fill: balance;
+  text-align: left;
   orphans: 2;
   widows: 2;
 }
@@ -157,9 +158,19 @@ h5, h6 {
 /* ── Paragraphs ── */
 p {
   margin: 0 0 1pt 0;
-  text-align: start;
   hyphens: auto;
   overflow-wrap: anywhere;
+}
+
+/* Keep prose ragged-right: justified text creates distracting word spacing
+   in narrow columns, especially when English, Chinese, code, and math mix. */
+p,
+li,
+blockquote,
+th,
+td {
+  text-align: left;
+  text-justify: auto;
 }
 
 /* ── Lists ── */
@@ -303,7 +314,6 @@ th {
   color: var(--table-head-color);
   font-weight: 700;
   padding: 1pt 2.5pt;
-  text-align: left;
   border: 0.3pt solid var(--table-border);
   font-size: var(--table-font-size);
   word-break: normal;

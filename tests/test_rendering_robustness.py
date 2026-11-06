@@ -439,7 +439,17 @@ class RobustRenderingIntegrationTests(unittest.TestCase):
         self.assertNotRegex(css, r"ul\s*>\s*li::before")
         self.assertIn("li::marker", css)
         self.assertRegex(css, r"p\s*\{[^}]*overflow-wrap:\s*anywhere", re.DOTALL)
-        self.assertRegex(css, r"p\s*\{[^}]*text-align:\s*start", re.DOTALL)
+        self.assertRegex(
+            css,
+            r"\.content-wrapper\s*\{[^}]*text-align:\s*left",
+            re.DOTALL,
+        )
+        self.assertRegex(
+            css,
+            r"p,\s*li,\s*blockquote,\s*th,\s*td\s*\{[^}]*text-align:\s*left",
+            re.DOTALL,
+        )
+        self.assertNotRegex(css, r"text-align:\s*(?:justify|start)\b")
         self.assertRegex(
             css,
             r'math\[display="inline"\]\s*\{[^}]*display:\s*inline-block',
