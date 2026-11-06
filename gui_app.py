@@ -247,7 +247,12 @@ class GuiHandler(BaseHTTPRequestHandler):
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the markdown2cheatsheet local GUI.")
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind the local server")
-    parser.add_argument("--port", type=int, default=8765, help="Port to bind the local server")
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=0,
+        help="Port to bind the local server (0 selects a new free port)",
+    )
     parser.add_argument(
         "--project-root",
         default=str(ROOT_DIR),
@@ -263,12 +268,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def run_server(
     host: str = "127.0.0.1",
-    port: int = 8765,
+    port: int = 0,
     open_browser: bool = True,
     project_root: str | Path = ROOT_DIR,
 ) -> None:
     server = create_server(host, port, project_root)
-    url = f"http://{host}:{port}"
+    url = f"http://{host}:{server.server_port}"
     print(f"GUI running at {url}")
     if open_browser:
         webbrowser.open(url)

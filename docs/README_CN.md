@@ -204,8 +204,8 @@ python3 md2cheatsheet.py --list-templates
 - macOS 双击 `markdown2cheatsheet.command` 被拦截：先右键打开；如果仍失败，到“系统设置 > 隐私与安全性”里放行
 - 安装或更新 Pandoc 后仍提示版本不对：关闭当前窗口后重新运行启动器
 - Debian/Fedora/Arch 的包管理器安装后版本仍过低：手动安装 Pandoc `3.1.3` 或更高版本，再重新运行启动器
-- 浏览器没有自动打开：手动访问 `http://127.0.0.1:8765`
-- 启动后提示端口占用：先关闭之前未退出的 markdown2cheatsheet 进程，再重新启动
+- 浏览器没有自动打开：复制启动器中显示的 `GUI running at http://127.0.0.1:<端口>` 地址
+- 每次运行启动器都会使用新的空闲 localhost 端口，避免旧 GUI 进程继续处理新启动器的转换请求
 
 更完整的故障排除说明见 [使用手册](USAGE_CN.md)。
 

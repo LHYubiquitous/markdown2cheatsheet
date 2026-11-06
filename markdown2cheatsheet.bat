@@ -11,7 +11,7 @@ call :ensure_python || goto :fail
 call :ensure_pandoc || goto :fail
 
 echo When you are finished, return to this window and press Ctrl+C to stop the local service.
-call %PYTHON_CMD% gui_app.py --project-root "%~dp0"
+call %PYTHON_CMD% gui_app.py --port 0 --project-root "%~dp0"
 if errorlevel 1 goto :fail_runtime
 
 echo.

@@ -199,8 +199,8 @@ The readability-first default is `3` columns, `8pt` text, and `1.2` line height.
 - macOS blocks `markdown2cheatsheet.command`: try right-click `Open` first, then allow it in `System Settings > Privacy & Security` if needed
 - Pandoc still looks outdated after install or upgrade: close the current launcher window and run it again
 - Debian/Fedora/Arch package manager installs an older Pandoc: install Pandoc `3.1.3` or later manually, then rerun the launcher
-- the browser does not open automatically: visit `http://127.0.0.1:8765` manually
-- startup reports the port is already in use: close any older markdown2cheatsheet process and start it again
+- the browser does not open automatically: copy the `GUI running at http://127.0.0.1:<port>` address printed by the launcher
+- every launcher run uses a new free localhost port, so an older GUI cannot silently handle conversions from a newly opened launcher
 
 See the full [User Guide](docs/USAGE.md) for the detailed troubleshooting flow.
 
