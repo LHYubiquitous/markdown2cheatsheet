@@ -433,6 +433,12 @@ class RobustRenderingIntegrationTests(unittest.TestCase):
         self.assertIn("<mtable", self.html)
         self.assertGreaterEqual(self.html.count('class="math-long"'), 2)
 
+    def test_common_three_and_four_column_tables_stay_as_grids(self):
+        self.assertIn(
+            "const useCards = columnCount >= 5 && metrics.width < CARD_COLUMN_THRESHOLD;",
+            self.html,
+        )
+
     def test_generated_html_uses_native_list_markers_and_atomic_fragments(self):
         css = (ROOT / "cheatsheet.css").read_text(encoding="utf-8")
 

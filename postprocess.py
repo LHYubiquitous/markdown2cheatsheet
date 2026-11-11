@@ -102,7 +102,7 @@ _RESPONSIVE_LAYOUT_SCRIPT = r'''<script id="md2cheatsheet-layout-fit">
         });
       });
 
-      const useCards = columnCount >= 3 && metrics.width < CARD_COLUMN_THRESHOLD;
+      const useCards = columnCount >= 5 && metrics.width < CARD_COLUMN_THRESHOLD;
       wrapper.classList.toggle("table-cards", useCards);
       if (useCards) {
         table.querySelectorAll("colgroup[data-responsive-columns]").forEach((node) => node.remove());
