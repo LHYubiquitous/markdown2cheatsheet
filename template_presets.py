@@ -13,6 +13,26 @@ DEFAULT_CJK_FONT = "microsoft-yahei"
 DEFAULT_CODE_FONT = "system-code"
 DEFAULT_FONT_SIZE = "8"
 DEFAULT_LINE_HEIGHT = "1.2"
+DEFAULT_PAGE_ORIENTATION = "landscape"
+DEFAULT_PAGE_MARGIN = 5.0
+DEFAULT_COLUMN_GAP = 3.0
+DEFAULT_TABLE_SCALE = 1.0
+DEFAULT_CODE_SCALE = 1.0
+DEFAULT_IMAGE_WIDTH = 30.0
+DEFAULT_BLOCK_SPACING = 1.0
+DEFAULT_COLUMN_RULE = True
+
+
+NUMERIC_CONTROLS = {
+    "fontSize": {"min": 4.0, "max": 14.0, "step": 0.1, "default": 8.0, "unit": "pt"},
+    "lineHeight": {"min": 0.8, "max": 2.0, "step": 0.05, "default": 1.2, "unit": ""},
+    "pageMargin": {"min": 0.0, "max": 25.0, "step": 0.5, "default": DEFAULT_PAGE_MARGIN, "unit": "mm"},
+    "columnGap": {"min": 0.0, "max": 15.0, "step": 0.5, "default": DEFAULT_COLUMN_GAP, "unit": "mm"},
+    "tableScale": {"min": 0.5, "max": 1.5, "step": 0.05, "default": DEFAULT_TABLE_SCALE, "unit": "×"},
+    "codeScale": {"min": 0.5, "max": 1.5, "step": 0.05, "default": DEFAULT_CODE_SCALE, "unit": "×"},
+    "imageWidth": {"min": 10.0, "max": 100.0, "step": 5.0, "default": DEFAULT_IMAGE_WIDTH, "unit": "%"},
+    "blockSpacing": {"min": 0.0, "max": 4.0, "step": 0.25, "default": DEFAULT_BLOCK_SPACING, "unit": "pt"},
+}
 
 
 COLOR_TEMPLATES = {
@@ -323,6 +343,24 @@ def _fmt_num(value: float) -> str:
     return str(int(value)) if value.is_integer() else f"{value:.1f}"
 
 
+def _fmt_decimal(value: float) -> str:
+    return f"{value:.2f}".rstrip("0").rstrip(".")
+
+
+def _number(value: str | int | float, label: str, minimum: float, maximum: float) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{label} must be a number between {minimum} and {maximum}")
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"{label} must be a number between {minimum} and {maximum}"
+        ) from exc
+    if not minimum <= number <= maximum:
+        raise ValueError(f"{label} must be between {minimum} and {maximum}")
+    return number
+
+
 def _font_size_css(base_size: float) -> dict[str, str]:
     return {
         "--base-font-size": f"{_fmt_num(base_size)}pt",
@@ -395,7 +433,7 @@ def _compose_font_family(primary_stack: str, secondary_stack: str, generic: str)
     return f"{primary_stack}, {secondary_stack}, {generic}"
 
 
-def list_templates() -> dict[str, dict[str, dict[str, str]]]:
+def list_templates() -> dict[str, object]:
     """Return metadata for display in CLI or UI."""
     return {
         "colors": _meta(COLOR_TEMPLATES),
@@ -408,6 +446,7 @@ def list_templates() -> dict[str, dict[str, dict[str, str]]]:
             "values": [2, 3, 4, 5, 6],
             "default": DEFAULT_COLUMNS,
         },
+        "controls": deepcopy(NUMERIC_CONTROLS),
         "defaults": {
             "color": DEFAULT_COLOR_TEMPLATE,
             "columns": DEFAULT_COLUMNS,
@@ -416,6 +455,14 @@ def list_templates() -> dict[str, dict[str, dict[str, str]]]:
             "codeFont": DEFAULT_CODE_FONT,
             "fontSize": DEFAULT_FONT_SIZE,
             "lineHeight": DEFAULT_LINE_HEIGHT,
+            "pageOrientation": DEFAULT_PAGE_ORIENTATION,
+            "pageMargin": DEFAULT_PAGE_MARGIN,
+            "columnGap": DEFAULT_COLUMN_GAP,
+            "tableScale": DEFAULT_TABLE_SCALE,
+            "codeScale": DEFAULT_CODE_SCALE,
+            "imageWidth": DEFAULT_IMAGE_WIDTH,
+            "blockSpacing": DEFAULT_BLOCK_SPACING,
+            "columnRule": DEFAULT_COLUMN_RULE,
         },
     }
 
@@ -426,8 +473,17 @@ def resolve_template(
     latin_font: str,
     cjk_font: str,
     code_font: str,
-    font_size: str,
-    line_height: str,
+    font_size: str | int | float,
+    line_height: str | int | float,
+    *,
+    page_orientation: str = DEFAULT_PAGE_ORIENTATION,
+    page_margin: str | int | float = DEFAULT_PAGE_MARGIN,
+    column_gap: str | int | float = DEFAULT_COLUMN_GAP,
+    table_scale: str | int | float = DEFAULT_TABLE_SCALE,
+    code_scale: str | int | float = DEFAULT_CODE_SCALE,
+    image_width: str | int | float = DEFAULT_IMAGE_WIDTH,
+    block_spacing: str | int | float = DEFAULT_BLOCK_SPACING,
+    column_rule: bool = DEFAULT_COLUMN_RULE,
 ) -> dict[str, str]:
     """Resolve a complete CSS variable override map."""
     if columns not in (2, 3, 4, 5, 6):
@@ -440,20 +496,58 @@ def resolve_template(
         raise ValueError(f"unknown cjk font: {cjk_font}")
     if code_font not in CODE_FONT_TEMPLATES:
         raise ValueError(f"unknown code font: {code_font}")
-    if font_size not in FONT_SIZE_TEMPLATES:
-        raise ValueError(f"unknown font size: {font_size}")
-    if line_height not in LINE_HEIGHT_TEMPLATES:
-        raise ValueError(f"unknown line height: {line_height}")
+    font_size_value = _number(font_size, "font size", 4.0, 14.0)
+    line_height_value = _number(line_height, "line height", 0.8, 2.0)
+    page_margin_value = _number(page_margin, "page margin", 0.0, 25.0)
+    column_gap_value = _number(column_gap, "column gap", 0.0, 15.0)
+    table_scale_value = _number(table_scale, "table scale", 0.5, 1.5)
+    code_scale_value = _number(code_scale, "code scale", 0.5, 1.5)
+    image_width_value = _number(image_width, "image width", 10.0, 100.0)
+    block_spacing_value = _number(block_spacing, "block spacing", 0.0, 4.0)
+    if page_orientation not in {"landscape", "portrait"}:
+        raise ValueError("page orientation must be landscape or portrait")
+    if not isinstance(column_rule, bool):
+        raise ValueError("column rule must be true or false")
 
     css = deepcopy(COLOR_TEMPLATES[color_template]["css"])
     latin = LATIN_FONT_TEMPLATES[latin_font]
     cjk = CJK_FONT_TEMPLATES[cjk_font]
     code = CODE_FONT_TEMPLATES[code_font]
-    css.update(FONT_SIZE_TEMPLATES[font_size]["css"])
-    css.update(LINE_HEIGHT_TEMPLATES[line_height]["css"])
+    font_key = _fmt_num(font_size_value)
+    font_css = deepcopy(
+        FONT_SIZE_TEMPLATES.get(font_key, {"css": _font_size_css(font_size_value)})["css"]
+    )
+    for variable in ("--inline-code-font-size", "--pre-font-size"):
+        value = float(font_css[variable].removesuffix("pt")) * code_scale_value
+        font_css[variable] = f"{_fmt_num(value)}pt"
+    table_size = float(font_css["--table-font-size"].removesuffix("pt"))
+    font_css["--table-font-size"] = f"{_fmt_num(table_size * table_scale_value)}pt"
+    css.update(font_css)
+
+    line_key = _fmt_decimal(line_height_value)
+    css.update(
+        LINE_HEIGHT_TEMPLATES.get(
+            line_key,
+            {
+                "css": {
+                    "--body-line-height": line_key,
+                    "--code-line-height": _fmt_decimal(line_height_value * 0.9),
+                }
+            },
+        )["css"]
+    )
     generic = cjk["generic"] if latin["generic"] != cjk["generic"] else latin["generic"]
     css["--body-font"] = _compose_font_family(latin["stack"], cjk["stack"], generic)
     css["--em-font"] = _compose_font_family(latin["em_stack"], cjk["stack"], generic)
     css["--code-font"] = code["stack"]
     css["--columns"] = str(columns)
+    css["--page-width"] = "297mm" if page_orientation == "landscape" else "210mm"
+    css["--page-margin"] = f"{_fmt_decimal(page_margin_value)}mm"
+    css["--column-gap"] = f"{_fmt_decimal(column_gap_value)}mm"
+    css["--column-rule-width"] = "0.3pt" if column_rule else "0pt"
+    css["--image-width"] = f"{_fmt_decimal(image_width_value)}%"
+    css["--block-gap"] = f"{_fmt_decimal(block_spacing_value)}pt"
+    css["--section-gap"] = f"{_fmt_decimal(block_spacing_value * 1.5)}pt"
+    css["--tight-gap"] = f"{_fmt_decimal(block_spacing_value * 0.5)}pt"
+    css["--card-gap"] = f"{_fmt_decimal(block_spacing_value * 2.0)}pt"
     return css

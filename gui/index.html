@@ -9,91 +9,205 @@
   </head>
   <body>
     <main class="layout">
-      <section class="sidebar">
-        <div class="header">
+      <aside class="sidebar" aria-label="Cheatsheet controls">
+        <header class="app-header">
           <h1>markdown2cheatsheet</h1>
           <a
             class="repo-link"
-            href="https://github.com/LHYubiquitous/markdown2cheatsheet.git"
+            href="https://github.com/LHYubiquitous/markdown2cheatsheet"
             target="_blank"
             rel="noreferrer"
-          >
-            GitHub Repo
-          </a>
-        </div>
+          >GitHub ↗</a>
+        </header>
 
-        <label class="field import-field">
-          <span>Import Markdown</span>
-          <div class="file-picker">
-            <button id="filePickerButton" type="button">Choose File</button>
-            <span id="filePickerLabel">No file chosen</span>
-            <input id="fileInput" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" />
+        <section class="recipe" aria-live="polite">
+          <div>
+            <strong id="recipePrimary">A4 · Landscape · 3 columns</strong>
+            <small id="recipeSecondary">8pt · 5mm margin · 3mm gap</small>
           </div>
-        </label>
+          <button id="resetBtn" class="button-quiet" type="button">Reset</button>
+        </section>
 
-        <label class="field">
-          <span>Output Filename (.html)</span>
-          <input id="filename" type="text" value="cheatsheet" />
-        </label>
-
-        <div class="field-grid">
-          <label class="field">
-            <span>Columns</span>
-            <select id="columns"></select>
+        <section class="control-section" aria-labelledby="sourceHeading">
+          <div class="section-heading">
+            <h2 id="sourceHeading">Source</h2>
+          </div>
+          <label class="field import-field">
+            <span>Import Markdown</span>
+            <div class="file-picker">
+              <button id="filePickerButton" class="button-secondary" type="button">Open file</button>
+              <span id="filePickerLabel">No file</span>
+              <input id="fileInput" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" />
+            </div>
           </label>
           <label class="field">
-            <span>Color</span>
-            <select id="colorTemplate"></select>
+            <span>File name</span>
+            <div class="input-suffix">
+              <input id="filename" type="text" value="cheatsheet" />
+              <span>.html</span>
+            </div>
           </label>
-        </div>
+        </section>
 
-        <div class="field-grid">
+        <section class="control-section" aria-labelledby="typeHeading">
+          <div class="section-heading">
+            <h2 id="typeHeading">Type &amp; color</h2>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Columns</span>
+              <select id="columns"></select>
+            </label>
+            <label class="field">
+              <span>Color</span>
+              <select id="colorTemplate"></select>
+            </label>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Latin font</span>
+              <select id="latinFont"></select>
+            </label>
+            <label class="field">
+              <span>中文字体</span>
+              <select id="cjkFont"></select>
+            </label>
+          </div>
           <label class="field">
-            <span>Latin Font</span>
-            <select id="latinFont"></select>
+            <span>Code font</span>
+            <select id="codeFont"></select>
           </label>
-          <label class="field">
-            <span>中文字体</span>
-            <select id="cjkFont"></select>
-          </label>
-        </div>
+          <div class="field-grid">
+            <div class="field">
+              <label class="field-label" for="fontSize">Base font size</label>
+              <div class="font-size-control">
+                <div class="input-suffix compact">
+                  <input id="fontSize" type="number" inputmode="decimal" />
+                  <span>pt</span>
+                </div>
+                <select id="fontSizePreset" aria-label="Quick font sizes">
+                  <option value="">Quick sizes</option>
+                  <option value="4">4 pt</option>
+                  <option value="5">5 pt</option>
+                  <option value="6">6 pt</option>
+                  <option value="7">7 pt</option>
+                  <option value="8">8 pt</option>
+                </select>
+              </div>
+            </div>
+            <label class="field">
+              <span>Line height</span>
+              <div class="input-suffix compact">
+                <input id="lineHeight" type="number" inputmode="decimal" />
+                <span>×</span>
+              </div>
+            </label>
+          </div>
+        </section>
 
-        <label class="field">
-          <span>Code Font</span>
-          <select id="codeFont"></select>
-        </label>
+        <section class="control-section" aria-labelledby="pageHeading">
+          <div class="section-heading">
+            <h2 id="pageHeading">Page</h2>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Orientation</span>
+              <select id="pageOrientation">
+                <option value="landscape">Landscape</option>
+                <option value="portrait">Portrait</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Page margin</span>
+              <div class="input-suffix compact">
+                <input id="pageMargin" type="number" inputmode="decimal" />
+                <span>mm</span>
+              </div>
+            </label>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Column gap</span>
+              <div class="input-suffix compact">
+                <input id="columnGap" type="number" inputmode="decimal" />
+                <span>mm</span>
+              </div>
+            </label>
+            <label class="toggle field-toggle">
+              <input id="columnRule" type="checkbox" />
+              <span>Column divider</span>
+            </label>
+          </div>
+        </section>
 
-        <div class="field-grid">
-          <label class="field">
-            <span>Font Size</span>
-            <select id="fontSize"></select>
-          </label>
-          <label class="field">
-            <span>Line Height</span>
-            <select id="lineHeight"></select>
-          </label>
-        </div>
+        <details class="advanced-panel">
+          <summary>
+            <span>Advanced</span>
+          </summary>
+          <div class="advanced-content">
+            <div class="field-grid">
+              <label class="field">
+                <span>Table text scale</span>
+                <div class="input-suffix compact">
+                  <input id="tableScale" type="number" inputmode="decimal" />
+                  <span>×</span>
+                </div>
+              </label>
+              <label class="field">
+                <span>Code text scale</span>
+                <div class="input-suffix compact">
+                  <input id="codeScale" type="number" inputmode="decimal" />
+                  <span>×</span>
+                </div>
+              </label>
+            </div>
+            <div class="field-grid">
+              <label class="field">
+                <span>Image width</span>
+                <div class="input-suffix compact">
+                  <input id="imageWidth" type="number" inputmode="decimal" />
+                  <span>%</span>
+                </div>
+              </label>
+              <label class="field">
+                <span>Block spacing</span>
+                <div class="input-suffix compact">
+                  <input id="blockSpacing" type="number" inputmode="decimal" />
+                  <span>pt</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </details>
 
-        <div class="field summary" id="templateSummary"></div>
-
-        <label class="field editor">
-          <span>Markdown Content</span>
-          <textarea id="markdownInput"></textarea>
-        </label>
+        <section class="control-section editor-section" aria-labelledby="contentHeading">
+          <div class="section-heading">
+            <h2 id="contentHeading">Markdown content</h2>
+            <label class="toggle toggle-inline">
+              <input id="autoPreview" type="checkbox" />
+              <span>Auto preview</span>
+            </label>
+          </div>
+          <textarea id="markdownInput" aria-label="Markdown content" spellcheck="false"></textarea>
+        </section>
 
         <div class="actions">
-          <button id="generateBtn" type="button">Generate</button>
-          <button id="downloadBtn" type="button" disabled>Download HTML</button>
+          <button id="generateBtn" class="button-primary" type="button">Generate</button>
+          <button id="downloadBtn" class="button-secondary" type="button" disabled>Download</button>
         </div>
+        <p class="status" id="statusText" role="status">Ready.</p>
+      </aside>
 
-        <p class="status" id="statusText">Ready.</p>
-      </section>
-
-      <section class="preview">
-        <iframe id="previewFrame" title="Cheatsheet preview"></iframe>
+      <section class="preview-shell" aria-label="Generated cheatsheet preview">
+        <header class="preview-toolbar">
+          <strong>Preview</strong>
+          <span id="previewFilename">No preview</span>
+        </header>
+        <div class="preview-stage">
+          <iframe id="previewFrame" title="Cheatsheet preview"></iframe>
+        </div>
       </section>
     </main>
-
     <script src="/app.js"></script>
   </body>
 </html>

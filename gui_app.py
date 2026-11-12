@@ -23,6 +23,14 @@ from template_presets import (
     DEFAULT_FONT_SIZE,
     DEFAULT_LINE_HEIGHT,
     DEFAULT_LATIN_FONT,
+    DEFAULT_PAGE_ORIENTATION,
+    DEFAULT_PAGE_MARGIN,
+    DEFAULT_COLUMN_GAP,
+    DEFAULT_TABLE_SCALE,
+    DEFAULT_CODE_SCALE,
+    DEFAULT_IMAGE_WIDTH,
+    DEFAULT_BLOCK_SPACING,
+    DEFAULT_COLUMN_RULE,
 )
 from version import get_version
 
@@ -138,6 +146,14 @@ class GuiHandler(BaseHTTPRequestHandler):
             code_font = payload.get("codeFont", DEFAULT_CODE_FONT)
             font_size = payload.get("fontSize", DEFAULT_FONT_SIZE)
             line_height = payload.get("lineHeight", DEFAULT_LINE_HEIGHT)
+            page_orientation = payload.get("pageOrientation", DEFAULT_PAGE_ORIENTATION)
+            page_margin = payload.get("pageMargin", DEFAULT_PAGE_MARGIN)
+            column_gap = payload.get("columnGap", DEFAULT_COLUMN_GAP)
+            table_scale = payload.get("tableScale", DEFAULT_TABLE_SCALE)
+            code_scale = payload.get("codeScale", DEFAULT_CODE_SCALE)
+            image_width = payload.get("imageWidth", DEFAULT_IMAGE_WIDTH)
+            block_spacing = payload.get("blockSpacing", DEFAULT_BLOCK_SPACING)
+            column_rule = payload.get("columnRule", DEFAULT_COLUMN_RULE)
             source_filename = payload.get("filename", "")
             cache_key = Path(source_filename).name
             if cache_key not in self.server.source_directory_cache:
@@ -176,6 +192,14 @@ class GuiHandler(BaseHTTPRequestHandler):
                     code_font=code_font,
                     font_size=font_size,
                     line_height=line_height,
+                    page_orientation=page_orientation,
+                    page_margin=page_margin,
+                    column_gap=column_gap,
+                    table_scale=table_scale,
+                    code_scale=code_scale,
+                    image_width=image_width,
+                    block_spacing=block_spacing,
+                    column_rule=column_rule,
                     resource_paths=[source_directory, self.server.project_root],
                     allowed_resource_root=self.server.project_root,
                 )

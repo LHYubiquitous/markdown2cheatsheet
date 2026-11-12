@@ -114,7 +114,10 @@ python3 gui_app.py
 What the GUI supports:
 
 - import a local Markdown file or paste content directly
-- choose columns, color template, fonts, font size, and line height
+- enter exact numeric values for font size, line height, margins, and column gap
+- switch A4 orientation and column dividers
+- fine-tune table/code scale, image width, and block spacing
+- save layout settings locally, reset them, and optionally refresh the preview automatically
 - preview the generated cheatsheet in-browser
 - download the final HTML output
 

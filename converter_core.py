@@ -28,6 +28,14 @@ from template_presets import (
     DEFAULT_FONT_SIZE,
     DEFAULT_LINE_HEIGHT,
     DEFAULT_LATIN_FONT,
+    DEFAULT_PAGE_ORIENTATION,
+    DEFAULT_PAGE_MARGIN,
+    DEFAULT_COLUMN_GAP,
+    DEFAULT_TABLE_SCALE,
+    DEFAULT_CODE_SCALE,
+    DEFAULT_IMAGE_WIDTH,
+    DEFAULT_BLOCK_SPACING,
+    DEFAULT_COLUMN_RULE,
     list_templates,
     resolve_template,
 )
@@ -330,8 +338,17 @@ def render_override_css_with_fonts(
     latin_font: str,
     cjk_font: str,
     code_font: str,
-    font_size: str,
-    line_height: str,
+    font_size: str | int | float,
+    line_height: str | int | float,
+    *,
+    page_orientation: str = DEFAULT_PAGE_ORIENTATION,
+    page_margin: str | int | float = DEFAULT_PAGE_MARGIN,
+    column_gap: str | int | float = DEFAULT_COLUMN_GAP,
+    table_scale: str | int | float = DEFAULT_TABLE_SCALE,
+    code_scale: str | int | float = DEFAULT_CODE_SCALE,
+    image_width: str | int | float = DEFAULT_IMAGE_WIDTH,
+    block_spacing: str | int | float = DEFAULT_BLOCK_SPACING,
+    column_rule: bool = DEFAULT_COLUMN_RULE,
 ) -> str:
     """Build an override stylesheet from the selected presets."""
     variables = resolve_template(
@@ -342,11 +359,28 @@ def render_override_css_with_fonts(
         code_font,
         font_size,
         line_height,
+        page_orientation=page_orientation,
+        page_margin=page_margin,
+        column_gap=column_gap,
+        table_scale=table_scale,
+        code_scale=code_scale,
+        image_width=image_width,
+        block_spacing=block_spacing,
+        column_rule=column_rule,
     )
     lines = [":root {"]
     for key, value in variables.items():
         lines.append(f"  {key}: {value};")
     lines.append("}")
+    lines.extend(
+        [
+            "",
+            "@page {",
+            f"  size: A4 {page_orientation};",
+            f"  margin: {variables['--page-margin']};",
+            "}",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -359,8 +393,16 @@ def convert_markdown(
     latin_font: str = DEFAULT_LATIN_FONT,
     cjk_font: str = DEFAULT_CJK_FONT,
     code_font: str = DEFAULT_CODE_FONT,
-    font_size: str = DEFAULT_FONT_SIZE,
-    line_height: str = DEFAULT_LINE_HEIGHT,
+    font_size: str | int | float = DEFAULT_FONT_SIZE,
+    line_height: str | int | float = DEFAULT_LINE_HEIGHT,
+    page_orientation: str = DEFAULT_PAGE_ORIENTATION,
+    page_margin: str | int | float = DEFAULT_PAGE_MARGIN,
+    column_gap: str | int | float = DEFAULT_COLUMN_GAP,
+    table_scale: str | int | float = DEFAULT_TABLE_SCALE,
+    code_scale: str | int | float = DEFAULT_CODE_SCALE,
+    image_width: str | int | float = DEFAULT_IMAGE_WIDTH,
+    block_spacing: str | int | float = DEFAULT_BLOCK_SPACING,
+    column_rule: bool = DEFAULT_COLUMN_RULE,
     title: str | None = None,
     resource_paths: Iterable[str | Path] | None = None,
     allowed_resource_root: str | Path | None = None,
@@ -388,6 +430,14 @@ def convert_markdown(
         code_font,
         font_size,
         line_height,
+        page_orientation=page_orientation,
+        page_margin=page_margin,
+        column_gap=column_gap,
+        table_scale=table_scale,
+        code_scale=code_scale,
+        image_width=image_width,
+        block_spacing=block_spacing,
+        column_rule=column_rule,
     )
     configured_resources = list(resource_paths) if resource_paths is not None else [input_file.parent]
     resource_directories: list[Path] = []

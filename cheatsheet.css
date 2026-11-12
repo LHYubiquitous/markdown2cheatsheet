@@ -22,8 +22,16 @@
 
 :root {
   --columns: 3;
+  --page-width: 297mm;
+  --page-margin: 5mm;
   --column-gap: 3mm;
+  --column-rule-width: 0.3pt;
   --column-rule-color: #ccc;
+  --image-width: 30%;
+  --block-gap: 1pt;
+  --section-gap: 1.5pt;
+  --tight-gap: 0.5pt;
+  --card-gap: 2pt;
   --base-font-size: 8pt;
   --body-line-height: 1.2;
   --code-line-height: 1.1;
@@ -78,7 +86,7 @@ body {
   letter-spacing: 0.005em;
   color: var(--text-color);
   background: var(--body-bg);
-  width: 287mm;               /* A4 landscape 297mm minus 10mm margins */
+  width: calc(var(--page-width) - var(--page-margin) - var(--page-margin));
   margin: 0 auto;
 }
 
@@ -88,7 +96,7 @@ body {
 .content-wrapper {
   column-count: var(--columns);
   column-gap: var(--column-gap);
-  column-rule: 0.3pt solid var(--column-rule-color);
+  column-rule: var(--column-rule-width) solid var(--column-rule-color);
   column-fill: balance;
   text-align: left;
   orphans: 2;
@@ -113,7 +121,7 @@ h1 {
   color: var(--h1-color);
   background: none;
   padding: 0;
-  margin: 1pt 0 0.5pt 0;
+  margin: var(--block-gap) 0 var(--tight-gap) 0;
   break-after: avoid;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -125,7 +133,7 @@ h2 {
   color: var(--h2-color);
   background: var(--h2-bg);
   padding: 1pt 3pt;
-  margin: 1.5pt 0 0.5pt 0;
+  margin: var(--section-gap) 0 var(--tight-gap) 0;
   border-left: 2pt solid var(--h2-border);
   break-after: avoid;
   break-before: avoid;
@@ -136,7 +144,7 @@ h3 {
   font-weight: 700;
   color: var(--h3-color);
   font-style: italic;
-  margin: 1.5pt 0 0.5pt 0;
+  margin: var(--section-gap) 0 var(--tight-gap) 0;
   break-after: avoid;
 }
 
@@ -144,7 +152,7 @@ h4 {
   font-size: var(--h4-font-size);
   font-weight: 700;
   color: var(--h4-color);
-  margin: 1pt 0 0.5pt 0;
+  margin: var(--block-gap) 0 var(--tight-gap) 0;
   break-after: avoid;
 }
 
@@ -152,12 +160,12 @@ h5, h6 {
   font-size: var(--h5-font-size);
   font-weight: 700;
   color: var(--h5-color);
-  margin: 1pt 0 0.5pt 0;
+  margin: var(--block-gap) 0 var(--tight-gap) 0;
 }
 
 /* ── Paragraphs ── */
 p {
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   hyphens: auto;
   overflow-wrap: anywhere;
 }
@@ -176,12 +184,12 @@ td {
 /* ── Lists ── */
 ul {
   list-style: disc outside;
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   padding-left: 7pt;
 }
 
 ol {
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   padding-left: 7pt;
 }
 
@@ -253,7 +261,7 @@ pre {
   border-left: 0.5pt solid var(--pre-border-left);
   border-radius: 2pt;
   padding: 1.5pt 3pt;
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   white-space: pre-wrap;
   word-break: break-all;
   overflow-wrap: break-word;
@@ -284,7 +292,7 @@ pre .op { color: #555; }
   display: block;
   width: 100%;
   max-width: 100%;
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   break-inside: avoid;
   overflow: visible;
 }
@@ -348,7 +356,7 @@ tr:nth-child(even) td {
 }
 
 .table-wrapper.table-cards tr {
-  margin: 0 0 2pt 0;
+  margin: 0 0 var(--card-gap) 0;
   border: 0.3pt solid var(--table-border);
   background: var(--body-bg);
 }
@@ -384,7 +392,7 @@ math[display="block"] {
   display: block;
   width: fit-content;
   max-width: 100%;
-  margin: 1.5pt auto 2pt auto;
+  margin: var(--section-gap) auto var(--card-gap) auto;
   break-inside: avoid;
 }
 
@@ -402,7 +410,7 @@ math[display="inline"] {
 .math-viewport-block {
   display: block;
   width: 100%;
-  margin: 1.5pt 0 2pt 0;
+  margin: var(--section-gap) 0 var(--card-gap) 0;
   break-inside: avoid;
 }
 
@@ -466,7 +474,7 @@ th math.math-inline-xlong {
 
 /* ── Blockquotes ── */
 blockquote {
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   padding: 1pt 4pt;
   border-left: 2pt solid var(--blockquote-border);
   background: var(--blockquote-bg);
@@ -480,22 +488,22 @@ blockquote p {
 
 /* ── Images ── */
 img {
-  max-width: 30%;
-  width: 30%;
+  max-width: var(--image-width);
+  width: var(--image-width);
   height: auto;
   display: block;
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
 }
 
 /* pandoc wraps captioned images in <figure> */
 figure {
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
   break-inside: avoid;
 }
 
 figure img {
-  max-width: 30%;
-  width: 30%;
+  max-width: var(--image-width);
+  width: var(--image-width);
   height: auto;
   display: block;
 }
@@ -505,7 +513,7 @@ figcaption {
   color: var(--figcaption-color);
   font-style: italic;
   text-align: center;
-  margin-top: 0.5pt;
+  margin-top: var(--tight-gap);
 }
 
 /* Bare <img> inside a paragraph — prevent paragraph margin doubling */
@@ -517,7 +525,7 @@ p > img:only-child {
 hr {
   border: none;
   border-top: 0.5pt solid var(--hr-color);
-  margin: 1pt 0;
+  margin: var(--block-gap) 0;
 }
 
 /* ── Prevent orphaned headings and torn page breaks ── */
@@ -540,7 +548,7 @@ h3 + p, h3 + ul, h3 + ol, h3 + pre {
 /* Do NOT set overflow on div.sourceCode — it creates a BFC that breaks multi-column flow */
 div.sourceCode {
   max-width: 100%;
-  margin: 0 0 1pt 0;
+  margin: 0 0 var(--block-gap) 0;
 }
 
 /* Override pandoc's default white-space:pre so long lines wrap within columns */

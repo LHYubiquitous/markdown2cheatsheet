@@ -176,10 +176,21 @@ Typical workflow:
 
 1. Import a Markdown file or paste Markdown directly
 2. Set the output filename
-3. Choose columns, color template, fonts, font size, and line height
+3. Choose columns, color template, fonts, page geometry, and density values
 4. Click `Generate`
 5. Preview the result on the right
 6. Click `Download HTML` to save the output
+
+### Layout controls
+
+Font size offers `4`, `5`, `6`, `7`, and `8 pt` as quick choices while still accepting typed values such as `6.5` or `8.3`. The other density controls also accept typed numbers. The supported ranges are shown by the browser when a value is invalid:
+
+- base font size: `4–14 pt`; line height: `0.8–2.0`
+- page margin: `0–25 mm`; column gap: `0–15 mm`
+- table and code scale: `0.5–1.5×`
+- image width: `10–100%`; block spacing: `0–4 pt`
+
+The Page section also switches between A4 landscape and portrait and can hide the column divider. Advanced density controls are grouped in a collapsible panel. Enable `Auto preview` to regenerate 650 ms after an edit, or keep it disabled and generate manually. Layout settings are stored in this browser only; Markdown content is not stored. `Reset` restores all layout defaults.
 
 ### Local images
 
@@ -206,8 +217,8 @@ After generating the HTML, you can export it to PDF:
 1. Open the generated HTML in a browser
 2. Press `Cmd+P` on macOS or `Ctrl+P` on Windows/Linux
 3. Set paper size to `A4`
-4. Set orientation to landscape
-5. Set margins to minimum
+4. Use the same orientation selected in the GUI
+5. Leave margins at the browser default if it honours the embedded `@page` settings; otherwise enter the GUI margin manually
 6. Disable headers and footers
 7. Save as PDF
 

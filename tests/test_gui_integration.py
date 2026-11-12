@@ -16,18 +16,20 @@ ONE_PIXEL_PNG = base64.b64decode(
 
 
 class GuiImageIntegrationTests(unittest.TestCase):
-    def request_conversion(self, project_root, filename, markdown, expect_error=False):
+    def request_conversion(
+        self, project_root, filename, markdown, expect_error=False, options=None
+    ):
         server = create_server("127.0.0.1", 0, project_root)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
-            payload = json.dumps(
-                {
-                    "filename": filename,
-                    "outputName": "sheet.html",
-                    "markdown": markdown,
-                }
-            ).encode("utf-8")
+            request_payload = {
+                "filename": filename,
+                "outputName": "sheet.html",
+                "markdown": markdown,
+            }
+            request_payload.update(options or {})
+            payload = json.dumps(request_payload).encode("utf-8")
             request = urllib.request.Request(
                 f"http://127.0.0.1:{server.server_port}/api/convert",
                 data=payload,
@@ -47,6 +49,55 @@ class GuiImageIntegrationTests(unittest.TestCase):
             server.server_close()
             thread.join(timeout=5)
         return result
+
+    def test_applies_custom_numeric_layout_controls(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir).resolve()
+            source = project_root / "sheet.md"
+            source.write_text("# Sheet\n", encoding="utf-8")
+
+            result = self.request_conversion(
+                project_root,
+                source.name,
+                source.read_text(encoding="utf-8"),
+                options={
+                    "fontSize": 9.2,
+                    "lineHeight": 1.18,
+                    "pageOrientation": "portrait",
+                    "pageMargin": 6.5,
+                    "columnGap": 4.5,
+                    "tableScale": 0.85,
+                    "codeScale": 0.9,
+                    "imageWidth": 45,
+                    "blockSpacing": 1.25,
+                    "columnRule": False,
+                },
+            )
+
+            self.assertIn("--base-font-size: 9.2pt", result["html"])
+            self.assertIn("--page-width: 210mm", result["html"])
+            self.assertIn("--page-margin: 6.5mm", result["html"])
+            self.assertIn("--column-gap: 4.5mm", result["html"])
+            self.assertIn("--column-rule-width: 0pt", result["html"])
+            self.assertIn("--image-width: 45%", result["html"])
+            self.assertIn("size: A4 portrait", result["html"])
+
+    def test_rejects_invalid_numeric_layout_control(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir).resolve()
+            source = project_root / "sheet.md"
+            source.write_text("# Sheet\n", encoding="utf-8")
+
+            result = self.request_conversion(
+                project_root,
+                source.name,
+                source.read_text(encoding="utf-8"),
+                expect_error=True,
+                options={"fontSize": 99},
+            )
+
+            self.assertEqual(result["status"], 400)
+            self.assertIn("font size", result["error"].lower())
 
     def test_embeds_markdown_image_relative_to_original_file(self):
         with tempfile.TemporaryDirectory() as tmpdir:
