@@ -28,11 +28,13 @@ _RAW_BLOCK_END = {
 _MARKDOWN_INLINE_TOKEN = re.compile(r"`+|(?<!\\)\$\$|(?<!\\)\$")
 _NESTED_TEXT_BOLD = re.compile(r"\\text\{\\textbf\{([^{}]*)\}\}")
 _NOT_MID = re.compile(r"\\not\s*\\mid\b")
+_COLLAPSED_ROW_COMMAND = re.compile(r"(?<!\\)\\{3}(?=[A-Za-z])")
 
 
 def _rewrite_mathml_compatible_tex(tex: str) -> str:
     """Rewrite known Pandoc texmath incompatibilities without changing meaning."""
     tex = _NESTED_TEXT_BOLD.sub(r"\\text{\1}", tex)
+    tex = _COLLAPSED_ROW_COMMAND.sub(lambda _: "\\\\" + " " + "\\", tex)
     return _NOT_MID.sub(r"\\nmid", tex)
 
 

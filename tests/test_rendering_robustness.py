@@ -133,6 +133,9 @@ class MarkdownNormalizerTests(unittest.TestCase):
             r"and $d\not\mid n$ but `d\not\mid n` stays code."
             "\n"
             r"Price is $5 and prose \not\mid remains literal."
+            "\n"
+            r"$$\begin{array}{cc}a & b \\\forall & c\end{array}$$ "
+            r"but `\\\forall` stays code."
         )
 
         normalized = normalize_markdown(source)
@@ -141,6 +144,8 @@ class MarkdownNormalizerTests(unittest.TestCase):
         self.assertIn(r"$d\nmid n$", normalized)
         self.assertIn(r"`d\not\mid n`", normalized)
         self.assertIn(r"Price is $5 and prose \not\mid remains literal.", normalized)
+        self.assertIn(r"a & b \\ \forall & c", normalized)
+        self.assertIn(r"`\\\forall`", normalized)
 
 
 class ReadabilityDefaultTests(unittest.TestCase):
