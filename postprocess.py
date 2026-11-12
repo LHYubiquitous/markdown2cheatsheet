@@ -18,6 +18,8 @@ Transformations applied:
     7. Inject an offline responsive helper that fits MathML to the actual
        browser column width and turns tables into labelled cards when columns
        are too narrow for a readable grid.
+    8. Remove Pandoc's obsolete external html5shiv fallback so the generated
+       document remains fully offline.
 """
 
 import html as html_module
@@ -27,6 +29,12 @@ import sys
 _MATH = re.compile(r'<math\b(?P<attrs>[^>]*)>(?P<body>.*?)</math>', re.DOTALL | re.IGNORECASE)
 _TEX_ANNOTATION = re.compile(
     r'<annotation\b[^>]*encoding="application/x-tex"[^>]*>(?P<tex>.*?)</annotation>',
+    re.DOTALL | re.IGNORECASE,
+)
+_LEGACY_HTML5SHIV = re.compile(
+    r'<!--\[if\s+lt\s+IE\s+9\]>.*?'
+    r'<script\b[^>]*\bsrc=["\'][^"\']*html5shiv[^"\']*["\'][^>]*>'
+    r'\s*</script>\s*<!\[endif\]-->\s*',
     re.DOTALL | re.IGNORECASE,
 )
 
@@ -267,6 +275,10 @@ def classify_math(m: re.Match) -> str:
 
 
 def process(html: str) -> str:
+    # Older Pandoc standalone templates inject a CDN-hosted IE8 shim.  Modern
+    # browsers do not need it, and removing it keeps the output self-contained.
+    html = _LEGACY_HTML5SHIV.sub('', html)
+
     # Remove pandoc-generated title block (filename shown as first h1)
     html = re.sub(r'<header[^>]*id="title-block-header"[^>]*>.*?</header>\s*', '', html, flags=re.DOTALL)
 

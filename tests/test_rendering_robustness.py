@@ -6,6 +6,7 @@ from pathlib import Path
 
 from converter_core import convert_markdown
 from markdown_normalizer import normalize_markdown
+from postprocess import process
 from template_presets import (
     DEFAULT_COLUMNS,
     DEFAULT_FONT_SIZE,
@@ -146,6 +147,36 @@ class MarkdownNormalizerTests(unittest.TestCase):
         self.assertIn(r"Price is $5 and prose \not\mid remains literal.", normalized)
         self.assertIn(r"a & b \\ \forall & c", normalized)
         self.assertIn(r"`\\\forall`", normalized)
+
+    def test_removes_trailing_array_hline_for_pandoc_3_1_3(self):
+        source = (
+            "$$\\begin{array}{cc}\\hline\n"
+            "a & b \\\\ c & d \\\\ \n"
+            "\\hline\\end{array}$$"
+        )
+
+        normalized = normalize_markdown(source)
+
+        self.assertIn("a & b \\\\ c & d \n\\end{array}", normalized)
+        self.assertNotIn(r"\hline\end{array}", normalized)
+
+
+class PostprocessCompatibilityTests(unittest.TestCase):
+    def test_removes_pandoc_legacy_external_html5shiv(self):
+        source = (
+            '<!DOCTYPE html><html><head>\n'
+            '<!--[if lt IE 9]>\n'
+            '<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/'
+            'html5shiv-printshiv.min.js"></script>\n'
+            '<![endif]-->\n'
+            '</head><body><p>Offline</p></body></html>'
+        )
+
+        rendered = process(source)
+
+        self.assertNotIn('html5shiv', rendered)
+        self.assertNotRegex(rendered, r'<script[^>]+\bsrc\s*=')
+        self.assertIn('<p>Offline</p>', rendered)
 
 
 class ReadabilityDefaultTests(unittest.TestCase):

@@ -29,49 +29,65 @@ _MARKDOWN_INLINE_TOKEN = re.compile(r"`+|(?<!\\)\$\$|(?<!\\)\$")
 _NESTED_TEXT_BOLD = re.compile(r"\\text\{\\textbf\{([^{}]*)\}\}")
 _NOT_MID = re.compile(r"\\not\s*\\mid\b")
 _COLLAPSED_ROW_COMMAND = re.compile(r"(?<!\\)\\{3}(?=[A-Za-z])")
+_TRAILING_ARRAY_HLINE = re.compile(
+    r"\\\\\s*\\hline\s*(?=\\end\{array\})"
+)
 
 
 def _rewrite_mathml_compatible_tex(tex: str) -> str:
     """Rewrite known Pandoc texmath incompatibilities without changing meaning."""
     tex = _NESTED_TEXT_BOLD.sub(r"\\text{\1}", tex)
     tex = _COLLAPSED_ROW_COMMAND.sub(lambda _: "\\\\" + " " + "\\", tex)
+    tex = _TRAILING_ARRAY_HLINE.sub(
+        lambda match: "\n" * match.group(0).count("\n"),
+        tex,
+    )
     return _NOT_MID.sub(r"\\nmid", tex)
 
 
 def _normalize_latex_compatibility(
     lines: list[str], protected: list[bool]
 ) -> list[str]:
-    """Apply compatibility rewrites only inside Markdown math delimiters."""
-    output: list[str] = []
+    """Apply compatibility rewrites to complete Markdown math regions."""
+    output_parts: list[str] = []
+    math_parts: list[str] = []
     math_delimiter: str | None = None
     code_delimiter: str | None = None
 
     for index, line in enumerate(lines):
         if protected[index]:
-            output.append(line)
+            if math_delimiter is not None:
+                output_parts.append(_rewrite_mathml_compatible_tex("".join(math_parts)))
+                math_parts.clear()
+            output_parts.append(line)
+            if index + 1 < len(lines):
+                output_parts.append("\n")
             code_delimiter = None
             continue
 
         token_matches = list(_MARKDOWN_INLINE_TOKEN.finditer(line))
-        rewritten: list[str] = []
         cursor = 0
         for token_index, token_match in enumerate(token_matches):
             segment = line[cursor:token_match.start()]
-            rewritten.append(
-                _rewrite_mathml_compatible_tex(segment)
-                if math_delimiter is not None
-                else segment
-            )
+            if math_delimiter is not None:
+                math_parts.append(segment)
+            else:
+                output_parts.append(segment)
+
             token = token_match.group(0)
-            rewritten.append(token)
 
             if code_delimiter is not None:
+                output_parts.append(token)
                 if token == code_delimiter:
                     code_delimiter = None
             elif token.startswith("`"):
                 if math_delimiter is None:
+                    output_parts.append(token)
                     code_delimiter = token
+                else:
+                    math_parts.append(token)
             elif math_delimiter is None:
+                should_open = token == "$$"
                 if token == "$":
                     # Inline math cannot safely continue across a physical line.
                     # Require a closing dollar outside a later code span so
@@ -88,23 +104,40 @@ def _normalize_latex_compatibility(
                         elif future_token == "$":
                             has_closing_dollar = True
                             break
-                    if has_closing_dollar:
-                        math_delimiter = token
-                else:
+                    should_open = has_closing_dollar
+
+                output_parts.append(token)
+                if should_open:
                     math_delimiter = token
             elif token == math_delimiter:
+                output_parts.append(
+                    _rewrite_mathml_compatible_tex("".join(math_parts))
+                )
+                math_parts.clear()
+                output_parts.append(token)
                 math_delimiter = None
+            else:
+                math_parts.append(token)
 
             cursor = token_match.end()
 
         tail = line[cursor:]
-        rewritten.append(
-            _rewrite_mathml_compatible_tex(tail)
-            if math_delimiter is not None
-            else tail
-        )
-        output.append("".join(rewritten))
+        if math_delimiter is not None:
+            math_parts.append(tail)
+        else:
+            output_parts.append(tail)
+        if index + 1 < len(lines):
+            if math_delimiter is not None:
+                math_parts.append("\n")
+            else:
+                output_parts.append("\n")
 
+    if math_parts:
+        output_parts.append(_rewrite_mathml_compatible_tex("".join(math_parts)))
+
+    output = "".join(output_parts).split("\n")
+    if len(output) != len(lines):
+        raise RuntimeError("LaTeX compatibility normalization changed line count")
     return output
 
 
