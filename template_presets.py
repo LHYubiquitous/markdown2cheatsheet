@@ -7,12 +7,12 @@ from copy import deepcopy
 
 
 DEFAULT_COLOR_TEMPLATE = "yubiquitous"
-DEFAULT_COLUMNS = 3
+DEFAULT_COLUMNS = 4
 DEFAULT_LATIN_FONT = "arial"
 DEFAULT_CJK_FONT = "microsoft-yahei"
 DEFAULT_CODE_FONT = "system-code"
-DEFAULT_FONT_SIZE = "8"
-DEFAULT_LINE_HEIGHT = "1.2"
+DEFAULT_FONT_SIZE = "6"
+DEFAULT_LINE_HEIGHT = "1"
 DEFAULT_PAGE_ORIENTATION = "landscape"
 DEFAULT_PAGE_MARGIN = 5.0
 DEFAULT_COLUMN_GAP = 3.0
@@ -24,8 +24,8 @@ DEFAULT_COLUMN_RULE = True
 
 
 NUMERIC_CONTROLS = {
-    "fontSize": {"min": 4.0, "max": 14.0, "step": 0.1, "default": 8.0, "unit": "pt"},
-    "lineHeight": {"min": 0.8, "max": 2.0, "step": 0.05, "default": 1.2, "unit": ""},
+    "fontSize": {"min": 4.0, "max": 14.0, "step": 0.1, "default": float(DEFAULT_FONT_SIZE), "unit": "pt"},
+    "lineHeight": {"min": 0.8, "max": 2.0, "step": 0.05, "default": float(DEFAULT_LINE_HEIGHT), "unit": ""},
     "pageMargin": {"min": 0.0, "max": 25.0, "step": 0.5, "default": DEFAULT_PAGE_MARGIN, "unit": "mm"},
     "columnGap": {"min": 0.0, "max": 15.0, "step": 0.5, "default": DEFAULT_COLUMN_GAP, "unit": "mm"},
     "tableScale": {"min": 0.5, "max": 1.5, "step": 0.05, "default": DEFAULT_TABLE_SCALE, "unit": "×"},

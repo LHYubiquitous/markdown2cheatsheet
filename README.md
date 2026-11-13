@@ -36,7 +36,7 @@ Convert Markdown notes into compact, print-ready cheatsheets with selectable lay
 - Local Markdown and raw HTML images are embedded into standalone output
 - LaTeX is converted to offline MathML; generated files do not depend on a math CDN
 - Common note-taking shorthand is normalized, including missing blank lines around headings, lists, blockquotes, and pipe tables
-- Lists and tables are kept as column-safe units; table columns use content-aware widths and become labelled row cards in very narrow layouts
+- Lists stay intact where practical; tables keep their grid layout, use content-aware widths, and can continue between complete rows across columns
 - A self-contained responsive helper fits MathML to the browser's actual column width, including non-default column/font combinations
 
 ## Requirements
@@ -162,7 +162,7 @@ python3 md2cheatsheet.py --list-templates
 
 ## Template Options
 
-The readability-first default is `3` columns, `8pt` text, and `1.2` line height. Higher-density options remain available when fitting more content is the priority.
+The compact default is `4` columns, `6pt` text, and `1.0` line height. Every value remains adjustable in the GUI.
 
 ### Columns
 

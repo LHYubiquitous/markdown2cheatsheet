@@ -22,8 +22,8 @@
 
         <section class="recipe" aria-live="polite">
           <div>
-            <strong id="recipePrimary">A4 · Landscape · 3 columns</strong>
-            <small id="recipeSecondary">8pt · 5mm margin · 3mm gap</small>
+            <strong id="recipePrimary">A4 · Landscape · 4 columns</strong>
+            <small id="recipeSecondary">6pt · 5mm margin · 3mm gap</small>
           </div>
           <button id="resetBtn" class="button-quiet" type="button">Reset</button>
         </section>
@@ -77,7 +77,7 @@
             <span>Code font</span>
             <select id="codeFont"></select>
           </label>
-          <div class="field-grid">
+          <div class="field-grid density-grid">
             <div class="field">
               <label class="field-label" for="fontSize">Base font size</label>
               <div class="font-size-control">
@@ -180,13 +180,9 @@
           </div>
         </details>
 
-        <section class="control-section editor-section" aria-labelledby="contentHeading">
+        <section class="control-section" aria-labelledby="contentHeading">
           <div class="section-heading">
             <h2 id="contentHeading">Markdown content</h2>
-            <label class="toggle toggle-inline">
-              <input id="autoPreview" type="checkbox" />
-              <span>Auto preview</span>
-            </label>
           </div>
           <textarea id="markdownInput" aria-label="Markdown content" spellcheck="false"></textarea>
         </section>

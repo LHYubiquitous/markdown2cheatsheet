@@ -62,8 +62,10 @@ class LayoutControlTests(unittest.TestCase):
         templates = list_templates()
         controls = templates["controls"]
 
-        self.assertEqual(controls["fontSize"]["default"], 8.0)
+        self.assertEqual(templates["defaults"]["columns"], 4)
+        self.assertEqual(controls["fontSize"]["default"], 6.0)
         self.assertEqual(controls["fontSize"]["step"], 0.1)
+        self.assertEqual(controls["lineHeight"]["default"], 1.0)
         self.assertEqual(controls["pageMargin"]["unit"], "mm")
         self.assertEqual(controls["imageWidth"]["max"], 100)
         self.assertEqual(templates["defaults"]["pageOrientation"], "landscape")
@@ -116,13 +118,20 @@ class GuiControlMarkupTests(unittest.TestCase):
 
         self.assertIn('id="pageOrientation"', html)
         self.assertIn('id="columnRule"', html)
-        self.assertIn('id="autoPreview"', html)
+        self.assertNotIn('id="autoPreview"', html)
         self.assertIn('id="resetBtn"', html)
         self.assertIn('id="fontSizePreset"', html)
         self.assertIn('value="">Quick sizes</option>', html)
         for preset in (4, 5, 6, 7, 8):
             self.assertIn(f'<option value="{preset}">{preset} pt</option>', html)
         self.assertIn('fontSizePreset.addEventListener("change"', script)
+        self.assertIn('class="field-grid density-grid"', html)
+        self.assertIn('markdown2cheatsheet.settings.v3', script)
+        self.assertNotIn("controls.autoPreview", script)
+        self.assertIn(
+            "if (!initialized || !markdownInput.value.trim()) return;",
+            script,
+        )
         self.assertIn("localStorage", script)
         self.assertIn("schedulePreview", script)
 
@@ -144,6 +153,20 @@ class GuiControlMarkupTests(unittest.TestCase):
         self.assertIn("--charcoal: #303030", stylesheet)
         self.assertIn("--canvas: #e4e4e4", stylesheet)
         self.assertIn("--white: #fff", stylesheet)
+        self.assertIn("--font-ui:", stylesheet)
+        self.assertIn("--font-mono:", stylesheet)
+        self.assertRegex(
+            stylesheet,
+            r"html,\s*body\s*\{[^}]*font-family:\s*var\(--font-ui\)",
+        )
+        self.assertRegex(
+            stylesheet,
+            r"\.density-grid\s*\{[^}]*grid-template-columns:",
+        )
+        self.assertRegex(
+            stylesheet,
+            r"\.font-size-control\s*\{[^}]*grid-template-columns:\s*minmax\(108px",
+        )
         self.assertNotIn("--accent", stylesheet)
         self.assertNotIn("linear-gradient", stylesheet)
         self.assertNotIn("box-shadow", stylesheet)

@@ -180,10 +180,10 @@ class PostprocessCompatibilityTests(unittest.TestCase):
 
 
 class ReadabilityDefaultTests(unittest.TestCase):
-    def test_defaults_prioritise_readability(self):
-        self.assertEqual(DEFAULT_COLUMNS, 3)
-        self.assertEqual(DEFAULT_FONT_SIZE, "8")
-        self.assertEqual(DEFAULT_LINE_HEIGHT, "1.2")
+    def test_defaults_use_compact_four_column_layout(self):
+        self.assertEqual(DEFAULT_COLUMNS, 4)
+        self.assertEqual(DEFAULT_FONT_SIZE, "6")
+        self.assertEqual(DEFAULT_LINE_HEIGHT, "1")
 
         css = resolve_template(
             DEFAULT_COLUMNS,
@@ -194,7 +194,7 @@ class ReadabilityDefaultTests(unittest.TestCase):
             DEFAULT_FONT_SIZE,
             DEFAULT_LINE_HEIGHT,
         )
-        self.assertEqual(css["--table-font-size"], "7.2pt")
+        self.assertEqual(css["--table-font-size"], "5.2pt")
 
 
 class RobustRenderingIntegrationTests(unittest.TestCase):

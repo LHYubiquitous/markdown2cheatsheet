@@ -1,4 +1,4 @@
-const STORAGE_KEY = "markdown2cheatsheet.settings.v2";
+const STORAGE_KEY = "markdown2cheatsheet.settings.v3";
 const AUTO_PREVIEW_DELAY = 650;
 const byId = (id) => document.getElementById(id);
 
@@ -18,7 +18,6 @@ const controls = {
   imageWidth: byId("imageWidth"),
   blockSpacing: byId("blockSpacing"),
   columnRule: byId("columnRule"),
-  autoPreview: byId("autoPreview"),
 };
 
 const numericControlNames = [
@@ -122,7 +121,6 @@ function setDefaults() {
     controls[name].value = String(templateMeta.controls[name].default);
   });
   controls.columnRule.checked = Boolean(defaults.columnRule);
-  controls.autoPreview.checked = false;
 }
 
 function restoreSettings() {
@@ -298,7 +296,7 @@ async function generatePreview() {
 
 function schedulePreview() {
   window.clearTimeout(previewTimer);
-  if (!initialized || !controls.autoPreview.checked || !markdownInput.value.trim()) return;
+  if (!initialized || !markdownInput.value.trim()) return;
   previewTimer = window.setTimeout(generatePreview, AUTO_PREVIEW_DELAY);
 }
 
@@ -356,6 +354,6 @@ Promise.all([loadTemplates(), loadDefaultMarkdown()])
   .then(() => {
     initialized = true;
     renderRecipe();
-    if (controls.autoPreview.checked) schedulePreview();
+    schedulePreview();
   })
   .catch((error) => setStatus(error.message || "Initialization failed.", true));
