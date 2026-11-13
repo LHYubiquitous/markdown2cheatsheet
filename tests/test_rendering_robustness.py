@@ -469,11 +469,10 @@ class RobustRenderingIntegrationTests(unittest.TestCase):
         self.assertIn("<mtable", self.html)
         self.assertGreaterEqual(self.html.count('class="math-long"'), 2)
 
-    def test_common_three_and_four_column_tables_stay_as_grids(self):
-        self.assertIn(
-            "const useCards = columnCount >= 5 && metrics.width < CARD_COLUMN_THRESHOLD;",
-            self.html,
-        )
+    def test_tables_always_stay_as_weighted_grids(self):
+        self.assertIn("installWeightedColumns(table, columnCount);", self.html)
+        self.assertNotIn("CARD_COLUMN_THRESHOLD", self.html)
+        self.assertNotIn("table-cards", self.html)
 
     def test_generated_html_uses_native_list_markers_and_atomic_fragments(self):
         css = (ROOT / "cheatsheet.css").read_text(encoding="utf-8")
@@ -498,16 +497,7 @@ class RobustRenderingIntegrationTests(unittest.TestCase):
             re.DOTALL,
         )
         self.assertRegex(css, r"table\s*\{[^}]*table-layout:\s*fixed", re.DOTALL)
-        self.assertRegex(
-            css,
-            r"\.table-wrapper\.table-cards\s+table,[^{]*\{[^}]*display:\s*block",
-            re.DOTALL,
-        )
-        self.assertRegex(
-            css,
-            r"\.table-wrapper\.table-cards\s+td::before\s*\{[^}]*attr\(data-label\)",
-            re.DOTALL,
-        )
+        self.assertNotIn(".table-wrapper.table-cards", css)
         self.assertRegex(
             css,
             r"math\.math-inline-xlong\s*\{[^}]*font-size:",
@@ -526,7 +516,22 @@ class RobustRenderingIntegrationTests(unittest.TestCase):
         self.assertRegex(css, r"li\s*\{[^}]*break-inside:\s*avoid", re.DOTALL)
         self.assertRegex(
             css,
-            r"\.table-wrapper\s*\{[^}]*break-inside:\s*avoid",
+            r"\.table-wrapper\s*\{[^}]*break-inside:\s*auto",
+            re.DOTALL,
+        )
+        self.assertRegex(
+            css,
+            r"table\s*\{[^}]*break-inside:\s*auto",
+            re.DOTALL,
+        )
+        self.assertRegex(
+            css,
+            r"tbody\s*\{[^}]*break-inside:\s*auto",
+            re.DOTALL,
+        )
+        self.assertRegex(
+            css,
+            r"tr\s*\{[^}]*break-inside:\s*avoid",
             re.DOTALL,
         )
 

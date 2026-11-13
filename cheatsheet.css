@@ -293,7 +293,7 @@ pre .op { color: #555; }
   width: 100%;
   max-width: 100%;
   margin: 0 0 var(--block-gap) 0;
-  break-inside: avoid;
+  break-inside: auto;
   overflow: visible;
 }
 
@@ -303,13 +303,18 @@ table {
   max-width: 100%;
   font-size: var(--table-font-size);
   margin: 0;
-  break-inside: avoid;
+  break-inside: auto;
   table-layout: fixed;
   overflow-wrap: anywhere;
 }
 
 thead {
+  break-inside: avoid;
   break-after: avoid;     /* Keep header row glued to first data row */
+}
+
+tbody {
+  break-inside: auto;
 }
 
 tr {
@@ -339,47 +344,6 @@ td {
 
 tr:nth-child(even) td {
   background: var(--table-stripe-bg);
-}
-
-/* Narrow columns use labelled row cards instead of unreadably thin cells. */
-.table-wrapper.table-cards table,
-.table-wrapper.table-cards tbody,
-.table-wrapper.table-cards tr,
-.table-wrapper.table-cards td {
-  display: block;
-  width: 100%;
-}
-
-.table-wrapper.table-cards colgroup,
-.table-wrapper.table-cards thead {
-  display: none;
-}
-
-.table-wrapper.table-cards tr {
-  margin: 0 0 var(--card-gap) 0;
-  border: 0.3pt solid var(--table-border);
-  background: var(--body-bg);
-}
-
-.table-wrapper.table-cards td {
-  padding: 1.5pt 2.5pt;
-  border: 0;
-  border-top: 0.3pt solid var(--table-border);
-  background: transparent;
-}
-
-.table-wrapper.table-cards td:first-child {
-  border-top: 0;
-}
-
-.table-wrapper.table-cards td::before {
-  content: attr(data-label);
-  display: block;
-  margin: -1.5pt -2.5pt 1pt -2.5pt;
-  padding: 1pt 2.5pt;
-  background: var(--table-head-bg);
-  color: var(--table-head-color);
-  font-weight: 700;
 }
 
 /* ── Offline MathML ── */

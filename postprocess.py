@@ -16,8 +16,7 @@ Transformations applied:
     5. Wrap tables so the browser treats them as column-safe units.
     6. Classify MathML by source complexity for baseline size control.
     7. Inject an offline responsive helper that fits MathML to the actual
-       browser column width and turns tables into labelled cards when columns
-       are too narrow for a readable grid.
+       browser column width and assigns weighted widths to table columns.
     8. Remove Pandoc's obsolete external html5shiv fallback so the generated
        document remains fully offline.
 """
@@ -43,7 +42,6 @@ _RESPONSIVE_LAYOUT_SCRIPT = r'''<script id="md2cheatsheet-layout-fit">
   "use strict";
 
   const ROOT_SELECTOR = ".content-wrapper";
-  const CARD_COLUMN_THRESHOLD = 300;
   let scheduledFrame = 0;
 
   function columnMetrics(root) {
@@ -96,27 +94,14 @@ _RESPONSIVE_LAYOUT_SCRIPT = r'''<script id="md2cheatsheet-layout-fit">
     table.prepend(group);
   }
 
-  function adaptTablesToColumns(root, metrics) {
+  function adaptTablesToColumns(root) {
     root.querySelectorAll(".table-wrapper").forEach((wrapper) => {
       const table = wrapper.querySelector(":scope > table");
       if (!table) return;
       const headerCells = [...table.querySelectorAll("thead tr:first-child > th")];
       const firstRow = table.querySelector("tr");
       const columnCount = headerCells.length || firstRow?.children.length || 1;
-      const labels = headerCells.map((cell, index) => visibleCellText(cell) || `Column ${index + 1}`);
-      table.querySelectorAll("tbody tr").forEach((row) => {
-        [...row.children].forEach((cell, index) => {
-          cell.dataset.label = labels[index] || `Column ${index + 1}`;
-        });
-      });
-
-      const useCards = columnCount >= 5 && metrics.width < CARD_COLUMN_THRESHOLD;
-      wrapper.classList.toggle("table-cards", useCards);
-      if (useCards) {
-        table.querySelectorAll("colgroup[data-responsive-columns]").forEach((node) => node.remove());
-      } else {
-        installWeightedColumns(table, columnCount);
-      }
+      installWeightedColumns(table, columnCount);
     });
   }
 
@@ -201,7 +186,7 @@ _RESPONSIVE_LAYOUT_SCRIPT = r'''<script id="md2cheatsheet-layout-fit">
     const root = document.querySelector(ROOT_SELECTOR);
     if (!root) return;
     const metrics = columnMetrics(root);
-    adaptTablesToColumns(root, metrics);
+    adaptTablesToColumns(root);
     fitMathToColumns(root, metrics);
   }
 
@@ -299,9 +284,9 @@ def process(html: str) -> str:
         html,
     )
 
-    # A wrapper gives the CSS fragmentation engine a stable unit to keep in
-    # one column.  Rows remain individually protected as a fallback for tables
-    # taller than a column.
+    # The wrapper provides stable sizing while still allowing a table to
+    # continue in the next column. Individual rows remain protected so a
+    # column break can only occur between complete rows.
     html = re.sub(
         r'(<table(?:\s[^>]*)?>.*?</table>)',
         r'<div class="table-wrapper">\1</div>',
